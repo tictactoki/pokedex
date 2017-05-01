@@ -13,8 +13,12 @@ libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0
 val reactiveMongoVer = "0.11.14"
 
 libraryDependencies ++= Seq(
-  ws
-  //"org.reactivemongo" %% "play2-reactivemongo" % reactiveMongoVer
+  ws,
+  "org.reactivemongo" %% "play2-reactivemongo" % reactiveMongoVer,
+  "org.webjars" %% "webjars-play" % "2.5.0",
+  "org.webjars" % "react" % "15.3.2",
+  "org.webjars" % "jquery" % "3.2.0",
+  "org.mindrot" % "jbcrypt" % "0.3m"
 )
 
 // Adds additional packages into Twirl

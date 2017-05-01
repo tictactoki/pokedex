@@ -6,6 +6,8 @@ import models.pokemons._
 import play.api.libs.json.{JsObject, Json}
 import play.api.libs.ws.WSClient
 import play.api.mvc._
+import play.modules.reactivemongo.{MongoController, ReactiveMongoApi, ReactiveMongoComponents}
+
 import scala.collection.mutable._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -15,15 +17,15 @@ import scala.concurrent.Future
   * application's home page.
   */
 @Singleton
-class HomeController @Inject()(val ws: WSClient, configuration: play.api.Configuration) extends Controller {
+class HomeController @Inject()(val ws: WSClient, val reactiveMongoApi: ReactiveMongoApi, configuration: play.api.Configuration, implicit val webJarAssets: WebJarAssets)
+  extends Controller with MongoController with ReactiveMongoComponents {
 
 
   protected lazy val pokemons: Future[scala.collection.mutable.HashMap[String, String]] = fillPokemonData
   protected lazy val pokemonsName = pokemons.map(_.map(_._1).toList)
-  protected lazy val pokemonsData: HashMap[String,Future[Pokemon]] = fillData
+  protected lazy val pokemonsData = HashMap[String,Future[Pokemon]]()
   protected val url = configuration.underlying.getString("pokedex.url")
   protected val pokemonUrl = url + "pokemon/"
-
 
   def getPokemonData(name: String) = Action.async { implicit request =>
     pokemonsData.getOrElseUpdate(name, createPokemon(name)).map { pokemon =>
@@ -31,15 +33,6 @@ class HomeController @Inject()(val ws: WSClient, configuration: play.api.Configu
     }
   }
 
-  protected def fillData = {
-    val map = scala.collection.mutable.HashMap[String,Future[Pokemon]]()
-    pokemonsName.foreach { names =>
-      names.foreach { name =>
-        map.put(name,createPokemon(name))
-      }
-    }
-    map
-  }
 
   protected def createPokemon(name: String): Future[Pokemon] = {
     getData(pokemonUrl+name).map { wsr => Pokemon(wsr.json) }
