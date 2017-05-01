@@ -33,7 +33,7 @@ object DataName {
   implicit val dataNameFormat = Json.format[DataName]
 }
 
-case class PokemonForm(id: Int,
+/*case class PokemonForm(id: Int,
                        name: String,
                        order: Int,
                        form_order: Int,
@@ -50,7 +50,7 @@ case class PokemonForm(id: Int,
 
 object PokemonForm {
   implicit val pokemonFormFormat = Json.format[PokemonForm]
-}
+}*/
 
 case class Stat(stat: Couple, effort: Int, base_stat: Int)
 

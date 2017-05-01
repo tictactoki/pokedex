@@ -17,7 +17,7 @@ import scala.concurrent.Future
   * application's home page.
   */
 @Singleton
-class HomeController @Inject()(val ws: WSClient, val reactiveMongoApi: ReactiveMongoApi, configuration: play.api.Configuration, implicit val webJarAssets: WebJarAssets)
+class HomeController @Inject()(val ws: WSClient, val reactiveMongoApi: ReactiveMongoApi, configuration: play.api.Configuration)
   extends Controller with MongoController with ReactiveMongoComponents {
 
 
@@ -33,13 +33,15 @@ class HomeController @Inject()(val ws: WSClient, val reactiveMongoApi: ReactiveM
     }
   }
 
+  def getPokedex = Action.async { implicit request =>
+    Future.successful(Ok(views.html.pokedex()))
+  }
 
   protected def createPokemon(name: String): Future[Pokemon] = {
     getData(pokemonUrl+name).map { wsr => Pokemon(wsr.json) }
   }
 
   protected def getData(url: String) = ws.url(url).get()
-
 
   protected def fillPokemonData: Future[scala.collection.mutable.HashMap[String, String]] = {
     val map = scala.collection.mutable.HashMap[String, String]()
