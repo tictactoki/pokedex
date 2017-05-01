@@ -2,8 +2,8 @@ package controllers
 
 import javax.inject._
 
-import models.pokemons.{Data, PokeData, PokemonForm, Sprites}
-import play.api.libs.json.Json
+import models.pokemons._
+import play.api.libs.json.{JsObject, Json}
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 
@@ -33,16 +33,29 @@ class HomeController @Inject()(val ws: WSClient, configuration: play.api.Configu
         pokeData
       }.getOrElse(throw new Exception("data not found"))*/
     poke.flatMap { l =>
-      getData(pokemonFormUrl + l(0)).map { wsr =>
+      getData(pokemonUrl + l(0)).map { wsr =>
         println(wsr.json)
-        val pokemonForm = wsr.json.validate[PokemonForm].asOpt.getOrElse(throw new Exception("data not found"))
-        Ok(Json.toJson(pokemonForm))
+        val pokemon = wsr.json match {
+          case obj: JsObject => {
+            val stats = (obj \ "stats").asOpt[List[Stat]]
+            val types = (obj \ "types").asOpt[List[Type]]
+            val id = (obj \ "id").asOpt[Int]
+            val name = (obj \ "name").asOpt[String]
+            val weight = (obj \ "weight").asOpt[Int]
+            val sprites = (obj \ "sprites").asOpt[Sprites]
+            Pokemon(id, name, weight, stats, types, sprites)
+          }
+            case _ => throw new Exception("Data not expected")
+          }
+        Ok(Json.toJson(pokemon))
+        }
+        /*val pokemonForm = wsr.json.validate[PokemonForm].asOpt.getOrElse(throw new Exception("data not found"))
+        Ok(Json.toJson(pokemonForm))*/
       }
     }
 
     //poke.map(i => Ok(Json.toJson(i)))
     //Future.successful(Ok(Json.toJson(poke)))
-  }
 
 
   protected def getData(url: String) = ws.url(url).get()

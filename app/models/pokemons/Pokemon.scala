@@ -6,7 +6,11 @@ import play.api.libs.json.Json
   * Created by wong on 29/04/17.
   */
 
-case class Sprites(back_default: Option[String],
+case class Sprites(back_female: Option[String],
+                   back_shiny_female: Option[String],
+                   back_default: Option[String],
+                   front_female: Option[String],
+                   front_shiny_female: Option[String],
                    back_shiny: Option[String],
                    front_default: Option[String],
                    front_shiny: Option[String]
@@ -16,14 +20,14 @@ object Sprites {
   implicit val spritesFormat = Json.format[Sprites]
 }
 
-case class Data(name: String,
-                url: String)
+case class Couple(name: String,
+                  url: String)
 
-object Data {
-  implicit val dataFormat = Json.format[Data]
+object Couple {
+  implicit val dataFormat = Json.format[Couple]
 }
 
-case class DataName(name: String, language: Data)
+case class DataName(name: String, language: Couple)
 
 object DataName {
   implicit val dataNameFormat = Json.format[DataName]
@@ -37,9 +41,9 @@ case class PokemonForm(id: Int,
                        is_battle_only: Boolean,
                        is_mega: Boolean,
                        form_name: String,
-                       pokemon: Data,
+                       pokemon: Couple,
                        sprites: Sprites,
-                       version_group: Data,
+                       version_group: Couple,
                        names: List[DataName] = Nil,
                        form_names: List[DataName] = Nil
                       )
@@ -48,10 +52,22 @@ object PokemonForm {
   implicit val pokemonFormFormat = Json.format[PokemonForm]
 }
 
+case class Stat(stat: Couple, effort: Int, base_stat: Int)
 
-case class Ability(id_hidden: Boolean,
-                   slot: Int,
-                   ability: Data
+object Stat {
+  implicit val statFormat = Json.format[Stat]
+}
+
+case class Type(slot: Int, `type`: Couple)
+
+object Type {
+  implicit val typeFomart = Json.format[Type]
+}
+
+case class Ability(id: Int,
+                   name: String,
+                   ability: Couple
+
                   )
 
 object PokeData {
@@ -60,6 +76,18 @@ object PokeData {
 
 case class PokeData(count: Int,
                     previous: Option[String],
-                    results: List[Data],
+                    results: List[Couple],
                     next: Option[String]
                    )
+
+case class Pokemon(id: Option[Int],
+                   name: Option[String],
+                   weight: Option[Int],
+                   stats: Option[List[Stat]],
+                   types: Option[List[Type]],
+                   sprites: Option[Sprites]
+                  )
+
+object Pokemon {
+  implicit val pokemonFormat = Json.format[Pokemon]
+}
