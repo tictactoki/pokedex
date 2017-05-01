@@ -1,6 +1,6 @@
 package models.pokemons
 
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, JsValue, Json}
 
 /**
   * Created by wong on 29/04/17.
@@ -90,4 +90,18 @@ case class Pokemon(id: Option[Int],
 
 object Pokemon {
   implicit val pokemonFormat = Json.format[Pokemon]
+
+  def apply(json: JsValue): Pokemon = json match {
+    case obj: JsObject => {
+      val stats = (obj \ "stats").asOpt[List[Stat]]
+      val types = (obj \ "types").asOpt[List[Type]]
+      val id = (obj \ "id").asOpt[Int]
+      val name = (obj \ "name").asOpt[String]
+      val weight = (obj \ "weight").asOpt[Int]
+      val sprites = (obj \ "sprites").asOpt[Sprites]
+      Pokemon(id, name, weight, stats, types, sprites)
+    }
+    case _ => throw new Exception("Data not expected")
+  }
+
 }

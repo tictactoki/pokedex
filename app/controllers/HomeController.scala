@@ -6,7 +6,7 @@ import models.pokemons._
 import play.api.libs.json.{JsObject, Json}
 import play.api.libs.ws.WSClient
 import play.api.mvc._
-
+import scala.collection.mutable._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -19,44 +19,31 @@ class HomeController @Inject()(val ws: WSClient, configuration: play.api.Configu
 
 
   protected lazy val pokemons: Future[scala.collection.mutable.HashMap[String, String]] = fillPokemonData
-  protected lazy val poke = pokemons.map(_.map(_._1).toList)
+  protected lazy val pokemonsName = pokemons.map(_.map(_._1).toList)
+  protected lazy val pokemonsData: HashMap[String,Future[Pokemon]] = fillData
   protected val url = configuration.underlying.getString("pokedex.url")
   protected val pokemonUrl = url + "pokemon/"
-  protected val pokemonFormUrl = url + "pokemon-form/"
 
 
-  def getAllPokemonName = Action.async { implicit request =>
-    /*val f = ws.url(url + "pokemon").get()
-    f.map{ ws =>
-      val test = ws.json.validate[PokeData]
-      val t = test.asOpt.map { pokeData =>
-        pokeData
-      }.getOrElse(throw new Exception("data not found"))*/
-    poke.flatMap { l =>
-      getData(pokemonUrl + l(0)).map { wsr =>
-        println(wsr.json)
-        val pokemon = wsr.json match {
-          case obj: JsObject => {
-            val stats = (obj \ "stats").asOpt[List[Stat]]
-            val types = (obj \ "types").asOpt[List[Type]]
-            val id = (obj \ "id").asOpt[Int]
-            val name = (obj \ "name").asOpt[String]
-            val weight = (obj \ "weight").asOpt[Int]
-            val sprites = (obj \ "sprites").asOpt[Sprites]
-            Pokemon(id, name, weight, stats, types, sprites)
-          }
-            case _ => throw new Exception("Data not expected")
-          }
-        Ok(Json.toJson(pokemon))
-        }
-        /*val pokemonForm = wsr.json.validate[PokemonForm].asOpt.getOrElse(throw new Exception("data not found"))
-        Ok(Json.toJson(pokemonForm))*/
+  def getPokemonData(name: String) = Action.async { implicit request =>
+    pokemonsData.getOrElseUpdate(name, createPokemon(name)).map { pokemon =>
+      Ok(Json.toJson(pokemon))
+    }
+  }
+
+  protected def fillData = {
+    val map = scala.collection.mutable.HashMap[String,Future[Pokemon]]()
+    pokemonsName.foreach { names =>
+      names.foreach { name =>
+        map.put(name,createPokemon(name))
       }
     }
+    map
+  }
 
-    //poke.map(i => Ok(Json.toJson(i)))
-    //Future.successful(Ok(Json.toJson(poke)))
-
+  protected def createPokemon(name: String): Future[Pokemon] = {
+    getData(pokemonUrl+name).map { wsr => Pokemon(wsr.json) }
+  }
 
   protected def getData(url: String) = ws.url(url).get()
 
@@ -64,7 +51,7 @@ class HomeController @Inject()(val ws: WSClient, configuration: play.api.Configu
   protected def fillPokemonData: Future[scala.collection.mutable.HashMap[String, String]] = {
     val map = scala.collection.mutable.HashMap[String, String]()
 
-    def getCount(url: String): Future[Int] = {
+    def getCount(url: String = pokemonUrl): Future[Int] = {
       ws.url(url).get().map { wsr =>
         wsr.json.validate[PokeData].asOpt.map(_.count).getOrElse(0)
       }
@@ -79,8 +66,8 @@ class HomeController @Inject()(val ws: WSClient, configuration: play.api.Configu
       }
     }
 
-    getCount(pokemonUrl).flatMap { count =>
-      fillData(url + "pokemon/?limit=" + count)
+    getCount().flatMap { count =>
+      fillData(pokemonUrl + "?limit=" + count)
     }
 
   }
