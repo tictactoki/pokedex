@@ -1,10 +1,11 @@
-@()
+@import models.pokemons.SignUp
+@(userForm: Form[SignUp])
 
 <!DOCTYPE html>
 <html lang="en">
     <head>
         @* Here's where we render the page title `String`. *@
-        <title>Pokedex</title>
+        <title>Login</title>
         <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
         <script src="@routes.Assets.versioned("bower_components/jquery/dist/jquery.min.js")" type="text/javascript"></script>
@@ -17,6 +18,11 @@
         @* And here's where we render the `Html` object containing
         * the page content. *@
         <div id="content">
+            <form action='@routes.UserController.signUp' method="POST">
+                <input id="name" refs="name" name="name" type="text" placeholder="Name"required/>
+                <input id="password" refs="password" name="password" type="password" placeholder="Password"/>
+                <input type="submit" value="OK"/>
+            </form>
                 <!--<a class="twitter-timeline"  href="https://twitter.com/hashtag/pikachu" data-widget-id="859046282828152832"></a> -->
         </div>
 

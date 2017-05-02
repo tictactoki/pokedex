@@ -30,7 +30,6 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
   override implicit val mainWriter: OWrites[P] = Pokemon.pokemonWriter
 
 
-
   protected lazy val pokemons: Future[scala.collection.mutable.HashMap[String, String]] = fillPokemonData
   protected lazy val pokemonsName = pokemons.map(_.map(_._1).toList)
   protected lazy val pokemonsData = HashMap[String,Future[Pokemon]]()

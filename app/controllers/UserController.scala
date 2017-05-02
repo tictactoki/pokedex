@@ -30,19 +30,25 @@ class UserController @Inject()(override val reactiveMongoApi: ReactiveMongoApi, 
   override implicit val mainReader: Reads[P] = User.userReader
   override implicit val mainWriter: OWrites[P] = User.userWriter
 
-  def index = Action { implicit request =>
+  def index = Action.async { implicit request =>
     request.session.get(Id).map { id =>
-      Ok(views.html.dashboard())
-    }.getOrElse(Ok(views.html.login()))
+      Future.successful(Ok(views.html.dashboard()))
+    }.getOrElse(Future.successful(Ok(views.html.login(SignUp.signInForm))))
   }
 
   def signUp = Action.async { implicit request =>
     SignUp.signInForm.bindFromRequest().fold(
-      hasErrors => getJsonFormError[SignUp](hasErrors),
+      hasErrors => {
+        println(hasErrors)
+        getJsonFormError[SignUp](hasErrors)
+      },
       signUp => {
+        println(signUp)
         findByName(mainCollection)(signUp.name).map { ou =>
           if(ou.isDefined) {
-            Redirect(routes.UserController.index).withSession(Id -> ou.get.id)
+            val validPass = BCrypt.checkpw(signUp.password, ou.get.password)
+            if(validPass) Redirect(routes.UserController.index).withSession(Id -> ou.get.id)
+            else Redirect(routes.UserController.index)
           }
           else {
             val user = User(name = signUp.name, password = BCrypt.hashpw(signUp.password,salt))

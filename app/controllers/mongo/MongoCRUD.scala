@@ -13,7 +13,9 @@ import models.helpers.MongoDBFields._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
 
-
+/**
+  * Created by wong on 02/05/17.
+  */
 trait MongoCRUD { self: CommonController =>
 
   type P <: Persistence
