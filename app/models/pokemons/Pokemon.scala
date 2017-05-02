@@ -33,25 +33,6 @@ object DataName {
   implicit val dataNameFormat = Json.format[DataName]
 }
 
-/*case class PokemonForm(id: Int,
-                       name: String,
-                       order: Int,
-                       form_order: Int,
-                       is_default: Boolean,
-                       is_battle_only: Boolean,
-                       is_mega: Boolean,
-                       form_name: String,
-                       pokemon: Couple,
-                       sprites: Sprites,
-                       version_group: Couple,
-                       names: List[DataName] = Nil,
-                       form_names: List[DataName] = Nil
-                      )
-
-object PokemonForm {
-  implicit val pokemonFormFormat = Json.format[PokemonForm]
-}*/
-
 case class Stat(stat: Couple, effort: Int, base_stat: Int)
 
 object Stat {
@@ -80,28 +61,4 @@ case class PokeData(count: Int,
                     next: Option[String]
                    )
 
-case class Pokemon(id: Option[Int],
-                   name: Option[String],
-                   weight: Option[Int],
-                   stats: Option[List[Stat]],
-                   types: Option[List[Type]],
-                   sprites: Option[Sprites]
-                  )
 
-object Pokemon {
-  implicit val pokemonFormat = Json.format[Pokemon]
-
-  def apply(json: JsValue): Pokemon = json match {
-    case obj: JsObject => {
-      val stats = (obj \ "stats").asOpt[List[Stat]]
-      val types = (obj \ "types").asOpt[List[Type]]
-      val id = (obj \ "id").asOpt[Int]
-      val name = (obj \ "name").asOpt[String]
-      val weight = (obj \ "weight").asOpt[Int]
-      val sprites = (obj \ "sprites").asOpt[Sprites]
-      Pokemon(id, name, weight, stats, types, sprites)
-    }
-    case _ => throw new Exception("Data not expected")
-  }
-
-}

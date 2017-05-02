@@ -3,7 +3,7 @@ package controllers
 import javax.inject._
 
 import models.pokemons._
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.{JsObject, Json, OWrites, Reads}
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import play.modules.reactivemongo.{MongoController, ReactiveMongoApi, ReactiveMongoComponents}
@@ -11,14 +11,24 @@ import play.modules.reactivemongo.{MongoController, ReactiveMongoApi, ReactiveMo
 import scala.collection.mutable._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import javax.inject.Singleton
+
+import reactivemongo.play.json.collection.JSONCollection
 
 /**
   * This controller creates an `Action` to handle HTTP requests to the
   * application's home page.
   */
 @Singleton
-class HomeController @Inject()(val ws: WSClient, val reactiveMongoApi: ReactiveMongoApi, configuration: play.api.Configuration)
-  extends Controller with MongoController with ReactiveMongoComponents {
+class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoApi: ReactiveMongoApi, override val configuration: play.api.Configuration)
+  extends CommonController(reactiveMongoApi,configuration) {
+
+
+  val mainCollection: Future[JSONCollection] = getJSONCollection("pokemons")
+  override type P = Pokemon
+  override implicit val mainReader: Reads[P] = Pokemon.pokemonReader
+  override implicit val mainWriter: OWrites[P] = Pokemon.pokemonWriter
+
 
 
   protected lazy val pokemons: Future[scala.collection.mutable.HashMap[String, String]] = fillPokemonData
