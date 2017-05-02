@@ -26,10 +26,10 @@ trait MongoCRUD { self: CommonController =>
 
   protected def getJSONCollection(name: String) = reactiveMongoApi.database.map {_.collection[JSONCollection](name)}
 
-  protected def findById(mainCollection: Future[JSONCollection])(id: String): Future[Option[P]] = {
+  protected def findByName(mainCollection: Future[JSONCollection])(name: String): Future[Option[P]] = {
     for {
       collection <- mainCollection
-      list <- collection.find(fieldQuery(Id,id)).cursor[P]().collect[List]()
+      list <- collection.find(fieldQuery(Name,name)).cursor[P]().collect[List]()
     } yield {
       list.headOption
     }

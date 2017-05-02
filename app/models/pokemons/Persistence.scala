@@ -100,16 +100,16 @@ final case class Pokemon(override val id: String,
                          override val dataType: String = "pokemon"
                         ) extends Persistence
 
-final case class SignIn(name: String, password: String)
+final case class SignUp(name: String, password: String)
 
-object SignIn {
-  implicit val signFormat = Json.format[SignIn]
+object SignUp {
+  implicit val signFormat = Json.format[SignUp]
 
   val signInForm = Form(
     mapping(
-      "name" -> nonEmptyText(2),
-      "password" -> nonEmptyText(2)
-    )(SignIn.apply)(SignIn.unapply)
+      CF.Name -> nonEmptyText(2),
+      CF.Password -> nonEmptyText(2)
+    )(SignUp.apply)(SignUp.unapply)
   )
 
 }

@@ -21,35 +21,4 @@ import reactivemongo.play.json._
   */
 @Singleton
 abstract class CommonController (val reactiveMongoApi: ReactiveMongoApi, val configuration: play.api.Configuration)
-  extends Controller with MongoController with ReactiveMongoComponents with MongoCRUD {
-
-  /*type T <: Persistence
-
-  implicit val mainReader: Reads[T]
-  implicit val mainWriter: OWrites[T]
-
-  protected val fieldQuery = (field: String, value: String) => Json.obj(field -> value)
-
-  protected def getCollection(name: String) = reactiveMongoApi.database.map(_.collection[JSONCollection](name))
-
-  protected def insert(collection: Future[JSONCollection])(obj: T) = collection.flatMap(_.insert(obj))
-
-  protected def findById(collection: Future[JSONCollection])(id: String) = {
-    for {
-      col <- collection
-      list <- col.find(fieldQuery(Id,id)).cursor[T]().collect[List]()
-    } yield list.headOption
-  }
-
-  protected def update(collection: Future[JSONCollection])(obj: T) = {
-    collection.flatMap(_.update(fieldQuery(Id,obj.id),obj))
-  }
-
-  protected def findByField(collection: Future[JSONCollection])(field: String, value: String) = {
-    for {
-      col <- collection
-      list <- col.find(fieldQuery(field,value)).cursor[T]().collect[List]()
-    } yield list
-  }*/
-
-}
+  extends Controller with MongoController with ReactiveMongoComponents with MongoCRUD
