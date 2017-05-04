@@ -24,7 +24,7 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
   extends CommonController(reactiveMongoApi,configuration) {
 
 
-  val mainCollection: Future[JSONCollection] = getJSONCollection("pokemons")
+  lazy val mainCollection: Future[JSONCollection] = getJSONCollection("pokemons")
   override type P = Pokemon
   override implicit val mainReader: Reads[P] = Pokemon.pokemonReader
   override implicit val mainWriter: OWrites[P] = Pokemon.pokemonWriter

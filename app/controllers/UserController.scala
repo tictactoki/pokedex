@@ -25,7 +25,7 @@ class UserController @Inject()(override val reactiveMongoApi: ReactiveMongoApi, 
 
   private final val salt = BCrypt.gensalt()
 
-  val mainCollection: Future[JSONCollection] = getJSONCollection("users")
+  lazy val mainCollection: Future[JSONCollection] = getJSONCollection("users")
   override type P = User
   override implicit val mainReader: Reads[P] = User.userReader
   override implicit val mainWriter: OWrites[P] = User.userWriter
