@@ -38,12 +38,8 @@ class UserController @Inject()(override val reactiveMongoApi: ReactiveMongoApi, 
 
   def signUp = Action.async { implicit request =>
     SignUp.signInForm.bindFromRequest().fold(
-      hasErrors => {
-        println(hasErrors)
-        getJsonFormError[SignUp](hasErrors)
-      },
+      hasErrors => getJsonFormError[SignUp](hasErrors),
       signUp => {
-        println(signUp)
         findByName(mainCollection)(signUp.name).map { ou =>
           if(ou.isDefined) {
             val validPass = BCrypt.checkpw(signUp.password, ou.get.password)

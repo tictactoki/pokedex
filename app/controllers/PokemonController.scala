@@ -37,8 +37,13 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
   protected val pokemonUrl = url + "pokemon/"
 
   def getPokemonData(name: String) = Action.async { implicit request =>
-    pokemonsData.getOrElseUpdate(name, createPokemon(name)).map { pokemon =>
+    /*pokemonsData.getOrElseUpdate(name, createPokemon(name)).map { pokemon =>
       Ok(Json.toJson(pokemon))
+    }*/
+    getOrInsertPokemon(name).map { pokemon =>
+      Ok(Json.toJson(pokemon))
+    }.recover {
+      case _ => NoContent
     }
   }
 
@@ -46,11 +51,31 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
     Future.successful(Ok(views.html.pokedex()))
   }
 
+  protected def getOrInsertPokemon(name: String): Future[Pokemon] = {
+    findByName(mainCollection)(name).flatMap { po =>
+      if(po.isDefined) {
+        Future.successful(po.get)
+      }
+      else {
+        createPokemon(name).map { pokemon =>
+          insertPokemonInDB(pokemon)
+          pokemon
+        }
+      }
+    }
+  }
+
+  protected def insertPokemonInDB(pokemon: Pokemon) = {
+    insert(mainCollection)(pokemon)
+  }
+
+
   protected def createPokemon(name: String): Future[Pokemon] = {
     getData(pokemonUrl+name).map { wsr => Pokemon(wsr.json) }
   }
 
   protected def getData(url: String) = ws.url(url).get()
+
 
   protected def fillPokemonData: Future[scala.collection.mutable.HashMap[String, String]] = {
     val map = scala.collection.mutable.HashMap[String, String]()
