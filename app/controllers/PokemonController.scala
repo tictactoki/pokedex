@@ -41,6 +41,7 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
       Ok(Json.toJson(pokemon))
     }*/
     getOrInsertPokemon(name).map { pokemon =>
+      println(pokemon)
       Ok(Json.toJson(pokemon))
     }.recover {
       case _ => NoContent
@@ -54,10 +55,12 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
   protected def getOrInsertPokemon(name: String): Future[Pokemon] = {
     findByName(mainCollection)(name).flatMap { po =>
       if(po.isDefined) {
+        println(po)
         Future.successful(po.get)
       }
       else {
         createPokemon(name).map { pokemon =>
+          println(pokemon)
           insertPokemonInDB(pokemon)
           pokemon
         }

@@ -51,12 +51,12 @@ object Pokemon {
   implicit val pokemonReader: Reads[Pokemon] = new Reads[Pokemon] {
     override def reads(json: JsValue) = json match {
       case obj: JsObject => {
-        val id = (obj \ "id").as[String]
-        val stats = (obj \ "stats").asOpt[List[Stat]]
-        val types = (obj \ "types").asOpt[List[Type]]
-        val name = (obj \ "name").asOpt[String]
-        val weight = (obj \ "weight").asOpt[Int]
-        val sprites = (obj \ "sprites").asOpt[Sprites]
+        val id = (obj \ CF.Id).as[String]
+        val stats = (obj \ CF.Stats).asOpt[List[Stat]]
+        val types = (obj \ CF.Types).asOpt[List[Type]]
+        val name = (obj \ CF.Name).asOpt[String]
+        val weight = (obj \ CF.Weight).asOpt[Int]
+        val sprites = (obj \ CF.Sprites).asOpt[Sprites]
         JsSuccess(Pokemon(id, name, weight, stats, types, sprites))
       }
       case _ => JsError("Data not expected")
@@ -78,13 +78,12 @@ object Pokemon {
 
   def apply(json: JsValue): Pokemon = json match {
     case obj: JsObject => {
-      val id = (obj \ "id").as[String]
-      val stats = (obj \ "stats").asOpt[List[Stat]]
-      val types = (obj \ "types").asOpt[List[Type]]
-      val name = (obj \ "name").asOpt[String]
-      val weight = (obj \ "weight").asOpt[Int]
-      val sprites = (obj \ "sprites").asOpt[Sprites]
-      Pokemon(id, name, weight, stats, types, sprites)
+      val stats = (obj \ CF.Stats).asOpt[List[Stat]]
+      val types = (obj \ CF.Types).asOpt[List[Type]]
+      val name = (obj \ CF.Name).asOpt[String]
+      val weight = (obj \ CF.Weight).asOpt[Int]
+      val sprites = (obj \ CF.Sprites).asOpt[Sprites]
+      Pokemon(generateBSONId, name, weight, stats, types, sprites)
     }
     case _ => throw new Exception("Data not expected")
   }
