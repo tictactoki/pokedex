@@ -8,7 +8,7 @@ const Pokemon = React.createClass({
 
     getInitialState: function() {
       return {
-          pokemonsName: []
+          pokemons: ["pikachu"]
       };
     },
 
@@ -18,7 +18,7 @@ const Pokemon = React.createClass({
         var that = this;
         $.get("http://localhost:9000/autocomplete?prefix=" + value, function(data,status,xhr) {
            if(xhr.status == 200 && data != null) {
-               that.setState({pokemonsName: data});
+               that.setState({pokemons: data});
            }
         });
     },
@@ -28,12 +28,11 @@ const Pokemon = React.createClass({
     },
 
     render: function () {
-        if (this.state.poekmonsName != null) {
-            console.log("test");
+        if (this.state.pokemons != null) {
             return (
                 elm("div", null,
-                    elm("input", {onChange: this.autocompleteName, type: "text", list: "pokemonsName"}, null),
-                    elm("datalist", {id: "pokemonsName"}, this.state.pokemonsName.map(function (pokemon) {
+                    elm("input", {onChange: this.autocompleteName, type: "text", list: "pokemons"}, null),
+                    elm("datalist", {id: "pokemons"}, this.state.pokemons.map(function (pokemon) {
                             return elm("option", {value: pokemon}, pokemon);
                         })
                     )
@@ -70,5 +69,5 @@ const Pokemon = React.createClass({
 });*/
 ReactDOM.render(
   elm(Pokemon, null,null),
-  document.getElementById("content")
+  document.getElementById("container")
 );
