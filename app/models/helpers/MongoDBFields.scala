@@ -14,3 +14,8 @@ object MongoDBFields {
   final val Password = "password"
 
 }
+
+object MongoCollection {
+  final val Users = "users"
+  final val Pokemons = "pokemons"
+}

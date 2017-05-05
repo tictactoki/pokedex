@@ -4,14 +4,12 @@
 # ~~~~
 
 # An example controller showing a sample home page
-GET     /                           controllers.UserController.index
 GET     /pokedex                    controllers.PokemonController.getPokemonData(name: String)
-GET     /poke                       controllers.PokemonController.getPokedex
 GET     /autocomplete               controllers.PokemonController.autocomplete(prefix: String)
 
-
+GET     /                           controllers.UserController.index
+GET     /logout                     controllers.UserController.logout
 GET     /index                      controllers.UserController.index
-
 POST    /signUp                      controllers.UserController.signUp
 
 # Map static resources from the /public folder to the /assets URL path

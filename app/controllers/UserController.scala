@@ -15,7 +15,7 @@ import scala.concurrent.Future
 import models.helpers.MongoDBFields.Id
 import models.helpers.Generator._
 import org.mindrot.jbcrypt.BCrypt
-
+import models.helpers.MongoCollection._
 /**
   * Created by wong on 02/05/17.
   */
@@ -25,7 +25,7 @@ class UserController @Inject()(override val reactiveMongoApi: ReactiveMongoApi, 
 
   private final val salt = BCrypt.gensalt()
 
-  lazy val mainCollection: Future[JSONCollection] = getJSONCollection("users")
+  lazy val mainCollection: Future[JSONCollection] = getJSONCollection(Users)
   override type P = User
   override implicit val mainReader: Reads[P] = User.userReader
   override implicit val mainWriter: OWrites[P] = User.userWriter
@@ -36,20 +36,26 @@ class UserController @Inject()(override val reactiveMongoApi: ReactiveMongoApi, 
     }.getOrElse(Future.successful(Ok(views.html.login(SignUp.signInForm))))
   }
 
+  def logout = Action { implicit request =>
+    Redirect(routes.UserController.index()).withNewSession
+  }
+
   def signUp = Action.async { implicit request =>
     SignUp.signInForm.bindFromRequest().fold(
       hasErrors => getJsonFormError[SignUp](hasErrors),
       signUp => {
-        findByName(mainCollection)(signUp.name).map { ou =>
+        findByName(mainCollection)(signUp.name).flatMap { ou =>
           if(ou.isDefined) {
             val validPass = BCrypt.checkpw(signUp.password, ou.get.password)
-            if(validPass) Redirect(routes.UserController.index).withSession(Id -> ou.get.id)
-            else Redirect(routes.UserController.index)
+            if(validPass) Future.successful(Redirect(routes.UserController.index).withSession(Id -> ou.get.id))
+            else Future.successful(Redirect(routes.UserController.index))
           }
           else {
             val user = User(name = signUp.name, password = BCrypt.hashpw(signUp.password,salt))
-            insert(mainCollection)(user)
-            Redirect(routes.UserController.index).withSession(Id -> user.id)
+            insert(mainCollection)(user).map { wr =>
+              if(wr.ok) Redirect(routes.UserController.index).withSession(Id -> user.id)
+              else Redirect(routes.UserController.index)
+            }
           }
         }
       }

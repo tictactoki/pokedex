@@ -15,6 +15,7 @@ import javax.inject.Singleton
 
 import reactivemongo.play.json.collection.JSONCollection
 import models.helpers.MongoDBFields._
+import models.helpers.MongoCollection._
 
 /**
   * This controller creates an `Action` to handle HTTP requests to the
@@ -25,7 +26,7 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
   extends CommonController(reactiveMongoApi,configuration) {
 
 
-  lazy val mainCollection: Future[JSONCollection] = getJSONCollection("pokemons")
+  lazy val mainCollection: Future[JSONCollection] = getJSONCollection(Pokemons)
   override type P = Pokemon
   override implicit val mainReader: Reads[P] = Pokemon.pokemonReader
   override implicit val mainWriter: OWrites[P] = Pokemon.pokemonWriter
@@ -59,10 +60,6 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
     }.getOrElse(Future.successful(Unauthorized("Need to login")))
   }
 
-  def getPokedex = Action.async { implicit request =>
-    Future.successful(Ok(views.html.pokedex()))
-  }
-
   protected def getOrInsertPokemon(name: String): Future[Pokemon] = {
     findByName(mainCollection)(name).flatMap { po =>
       if(po.isDefined) {
@@ -70,16 +67,13 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
       }
       else {
         createPokemon(name).map { pokemon =>
-          insertPokemonInDB(pokemon)
+          insert(mainCollection)(pokemon)
           pokemon
         }
       }
     }
   }
 
-  protected def insertPokemonInDB(pokemon: Pokemon) = {
-    insert(mainCollection)(pokemon)
-  }
 
 
   protected def createPokemon(name: String): Future[Pokemon] = {
@@ -111,16 +105,5 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
       fillData(pokemonUrl + "?limit=" + count)
     }
 
-  }
-
-  /**
-    * Create an Action to render an HTML page.
-    *
-    * The configuration in the `routes` file means that this method
-    * will be called when the application receives a `GET` request with
-    * a path of `/`.
-    */
-  def index = Action { implicit request =>
-    Ok(views.html.index())
   }
 }
