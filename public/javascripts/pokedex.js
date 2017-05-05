@@ -6,45 +6,16 @@ const elm = React.createElement;
 
 const Pokemon = React.createClass({
 
-    getInitialState: function() {
-      return {
-          pokemons: ["pikachu"]
-      };
-    },
-
-    autocompleteName: function(event) {
-        event.preventDefault();
-        var value = event.target.value;
-        var that = this;
-        $.get("http://localhost:9000/autocomplete?prefix=" + value, function(data,status,xhr) {
-           if(xhr.status == 200 && data != null) {
-               that.setState({pokemons: data});
-           }
-        });
-    },
-
-    shouldComponentUpdate: function (nextProps) {
-      return true;
-    },
-
     render: function () {
-        if (this.state.pokemons != null) {
+        if (this.props.pokeData != null) {
+            console.log(this.props.pokeData);
             return (
-                elm("div", null,
-                    elm("input", {onChange: this.autocompleteName, type: "text", list: "pokemons"}, null),
-                    elm("datalist", {id: "pokemons"}, this.state.pokemons.map(function (pokemon) {
-                            return elm("option", {value: pokemon}, pokemon);
-                        })
-                    )
-                )
+                elm("div", null, null)
             );
         }
         else {
             return (
-                elm("div", null,
-                    elm("input", {onChange: this.autocompleteName, type: "text", list: "pokemonsName"}, null),
-                    elm("datalist", {id: "pokemonsName"}, null)
-                )
+                elm("div", null, null)
             );
         }
     }
@@ -67,7 +38,7 @@ const Pokemon = React.createClass({
         console.log('Embedded a timeline.')
     });
 });*/
-ReactDOM.render(
+/*ReactDOM.render(
   elm(Pokemon, null,null),
   document.getElementById("container")
-);
+);*/
