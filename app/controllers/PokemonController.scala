@@ -14,6 +14,7 @@ import scala.concurrent.Future
 import javax.inject.Singleton
 
 import reactivemongo.play.json.collection.JSONCollection
+import models.helpers.MongoDBFields._
 
 /**
   * This controller creates an `Action` to handle HTTP requests to the
@@ -48,6 +49,16 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
     }
   }
 
+  def autocomplete(prefix: String) = Action.async { implicit request =>
+    request.session.get(Id).map { id =>
+      pokemonsName.map { list =>
+        Ok(Json.toJson(list.filter(_.toLowerCase.startsWith(prefix)).sorted.take(5)))
+      }.recover {
+        case e => NoContent
+      }
+    }.getOrElse(Future.successful(Unauthorized("Need to login")))
+  }
+
   def getPokedex = Action.async { implicit request =>
     Future.successful(Ok(views.html.pokedex()))
   }
@@ -55,12 +66,10 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
   protected def getOrInsertPokemon(name: String): Future[Pokemon] = {
     findByName(mainCollection)(name).flatMap { po =>
       if(po.isDefined) {
-        println(po)
         Future.successful(po.get)
       }
       else {
         createPokemon(name).map { pokemon =>
-          println(pokemon)
           insertPokemonInDB(pokemon)
           pokemon
         }

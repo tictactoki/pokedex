@@ -7,6 +7,7 @@
 GET     /                           controllers.UserController.index
 GET     /pokedex                    controllers.PokemonController.getPokemonData(name: String)
 GET     /poke                       controllers.PokemonController.getPokedex
+GET     /autocomplete               controllers.PokemonController.autocomplete(prefix: String)
 
 
 GET     /index                      controllers.UserController.index
