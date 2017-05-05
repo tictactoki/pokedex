@@ -31,6 +31,7 @@ object Persistence {
         (obj \ "dataType").as[String] match {
           case DataType.Pokemon => Pokemon.pokemonReader.reads(json)
           case DataType.User => User.userReader.reads(json)
+          case DataType.BookMark => Bookmark.bookmarkReader.reads(json)
         }
       }
       case _ => throw new Exception("No json object matched")
@@ -41,10 +42,36 @@ object Persistence {
     override def writes(o: Persistence): JsObject = o match {
       case p: Pokemon => Pokemon.pokemonWriter.writes(p)
       case u: User => User.userWriter.writes(u)
+      case b: Bookmark => Bookmark.bookmarkWriter.writes(b)
       case _ => throw new Exception("No writer defined")
     }
   }
 
+}
+
+final case class Bookmark(override val id: String,
+                          pokemons: Option[List[String]],
+                          dataType: String = "bookmark"
+                         ) extends Persistence
+
+object Bookmark {
+  implicit val bookmarkReader: Reads[Bookmark] = new Reads[Bookmark] {
+    override def reads(json: JsValue) = json match {
+      case obj: JsObject => {
+        val id = (obj \ CF.Id).as[String]
+        val pokemons = (obj \ CF.Pokemons).asOpt[List[String]]
+        JsSuccess(Bookmark(id, pokemons))
+      }
+      case _ => JsError("Data not expected")
+    }
+  }
+
+  implicit val bookmarkWriter: OWrites[Bookmark] = new OWrites[Bookmark] {
+    override def writes(o: Bookmark) = Json.obj(
+      CF.Id -> o.id,
+      CF.Pokemons -> o.pokemons
+    )
+  }
 }
 
 object Pokemon {

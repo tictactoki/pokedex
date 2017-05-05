@@ -14,7 +14,7 @@ import scala.concurrent.Future
 import javax.inject.Singleton
 
 import reactivemongo.play.json.collection.JSONCollection
-import models.helpers.MongoDBFields._
+import models.helpers.{MongoDBFields => CF }
 import models.helpers.MongoCollection._
 
 /**
@@ -23,7 +23,7 @@ import models.helpers.MongoCollection._
   */
 @Singleton
 class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoApi: ReactiveMongoApi, override val configuration: play.api.Configuration)
-  extends CommonController(reactiveMongoApi,configuration) {
+  extends CommonController(reactiveMongoApi, configuration) {
 
 
   lazy val mainCollection: Future[JSONCollection] = getJSONCollection(Pokemons)
@@ -34,7 +34,7 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
 
   protected lazy val pokemons: Future[scala.collection.mutable.HashMap[String, String]] = fillPokemonData
   protected lazy val pokemonsName = pokemons.map(_.map(_._1).toList)
-  protected lazy val pokemonsData = HashMap[String,Future[Pokemon]]()
+  protected lazy val pokemonsData = HashMap[String, Future[Pokemon]]()
   protected val url = configuration.underlying.getString("pokedex.url")
   protected val pokemonUrl = url + "pokemon/"
 
@@ -43,7 +43,6 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
       Ok(Json.toJson(pokemon))
     }*/
     getOrInsertPokemon(name).map { pokemon =>
-      println(pokemon)
       Ok(Json.toJson(pokemon))
     }.recover {
       case _ => NoContent
@@ -51,7 +50,7 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
   }
 
   def autocomplete(prefix: String) = Action.async { implicit request =>
-    request.session.get(Id).map { id =>
+    request.session.get(CF.Id).map { id =>
       pokemonsName.map { list =>
         Ok(Json.toJson(list.filter(_.toLowerCase.startsWith(prefix)).sorted.take(5)))
       }.recover {
@@ -62,7 +61,7 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
 
   protected def getOrInsertPokemon(name: String): Future[Pokemon] = {
     findByName(mainCollection)(name).flatMap { po =>
-      if(po.isDefined) {
+      if (po.isDefined) {
         Future.successful(po.get)
       }
       else {
@@ -74,26 +73,39 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
     }
   }
 
-
-
   protected def createPokemon(name: String): Future[Pokemon] = {
-    getData(pokemonUrl+name).map { wsr => Pokemon(wsr.json) }
+    getData(pokemonUrl + name).map { wsr => Pokemon(wsr.json) }
   }
 
   protected def getData(url: String) = ws.url(url).get()
 
 
-  protected def fillPokemonData: Future[scala.collection.mutable.HashMap[String, String]] = {
-    val map = scala.collection.mutable.HashMap[String, String]()
+  protected def getCount(url: String = pokemonUrl): Future[Int] = {
+    ws.url(url).get().map { wsr =>
+      wsr.json.validate[PokeData].asOpt.map(_.count).getOrElse(0)
+    }
+  }
 
-    def getCount(url: String = pokemonUrl): Future[Int] = {
-      ws.url(url).get().map { wsr =>
-        wsr.json.validate[PokeData].asOpt.map(_.count).getOrElse(0)
+  protected def fillPokemonType = {
+
+    def fillData(url: String) = {
+      getData(url).map { wsr =>
+         wsr.json.validate[PokeData].asOpt.map { pokeData =>
+           pokeData.results.map { data =>
+
+           }
+         }
       }
     }
 
+  }
+
+  protected def fillPokemonData: Future[scala.collection.mutable.HashMap[String, String]] = {
+    val map = scala.collection.mutable.HashMap[String, String]()
+
+
     def fillData(url: String) = {
-      ws.url(url).get().map { wsr =>
+     getData(url).map { wsr =>
         wsr.json.validate[PokeData].asOpt.map { pokeData =>
           pokeData.results.map { data => map.put(data.name, data.url) }
         }

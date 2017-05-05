@@ -12,10 +12,12 @@ object MongoDBFields {
   final val Types = "types"
   final val Sprites = "sprites"
   final val Password = "password"
+  final val Pokemons = "pokemons"
 
 }
 
 object MongoCollection {
   final val Users = "users"
   final val Pokemons = "pokemons"
+  final val Bookmarked = "bookmarked"
 }
