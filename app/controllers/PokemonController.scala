@@ -56,8 +56,9 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
       }.recover {
         case e => NoContent
       }
-    }.getOrElse(Future.successful(Unauthorized("Need to login")))
+    }.getOrElse(Future.successful(Unauthorized("You have to login")))
   }
+
 
   protected def getOrInsertPokemon(name: String): Future[Pokemon] = {
     findByName(mainCollection)(name).flatMap { po =>
