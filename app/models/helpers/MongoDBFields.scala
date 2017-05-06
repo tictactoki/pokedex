@@ -8,6 +8,7 @@ object MongoDBFields {
   final val Id = "_id"
   final val Name = "name"
   final val Weight = "weight"
+  final val Height = "height"
   final val Stats = "stats"
   final val Types = "types"
   final val Sprites = "sprites"

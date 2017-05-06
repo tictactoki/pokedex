@@ -45,15 +45,56 @@ const Pokemon = React.createClass({
         if (this.props.pokeData != null) {
             console.log(this.props.pokeData);
             return (
-                elm("table", null,
-                    elm("tbody", null,
-                        elm("tr", null, this.props.pokeData.stats.map(function (data) {
-                                return elm("th", null, data.stat.name);
-                            })
+                elm("div", null,
+                    elm("div", null,
+                        elm("table", null,
+                            elm("tbody", null,
+                                elm("tr", null,
+                                    elm("th", {colspan: "2"}, "Informations")
+                                ),
+                                elm("tr", null,
+                                    elm("td", null, "Image"),
+                                    elm("img", {src: this.props.pokeData.sprites["front_default"]}, null)
+                                ),
+                                elm("tr", null,
+                                    elm("td", null, "Name"),
+                                    elm("td", null, this.props.pokeData.name)
+                                ),
+                                elm("tr", null,
+                                    elm("td", null, "Weight"),
+                                    elm("td", null, (this.props.pokeData.weight / 10.0) + " kg")
+                                ),
+                                elm("tr", null,
+                                    elm("td", null, "Height"),
+                                    elm("td", null, (this.props.pokeData.height / 10.0) + " m")
+                                )
+                            )
                         ),
-                        elm("tr", null, this.props.pokeData.stats.map(function(data) {
-                                return elm("td", null, data.base_stat);
-                            })
+                        elm("table", null,
+                            elm("tbody", null,
+                                elm("tr", null,
+                                    elm("th", null, "Types")
+                                ),
+                                elm("tr", null,
+                                    elm("td", {rowspan: (this.props.pokeData.types.length + "")},
+                                        this.props.pokeData.types.map(function (data) {
+                                            return elm("p", null, data.type.name);
+                                        })
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    elm("table", null,
+                        elm("tbody", null,
+                            elm("tr", null, this.props.pokeData.stats.map(function (data) {
+                                    return elm("th", null, data.stat.name);
+                                })
+                            ),
+                            elm("tr", null, this.props.pokeData.stats.map(function (data) {
+                                    return elm("td", null, data.base_stat);
+                                })
+                            )
                         )
                     )
                 )
