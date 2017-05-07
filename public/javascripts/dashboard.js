@@ -28,7 +28,6 @@ const Dashboard = React.createClass({
     pokedex: function (event) {
         event.preventDefault();
         var that = this;
-        //console.log(this.state.pokemonName);
         $.get("http://localhost:9000/pokedex?name=" + this.state.pokemonName, function (data, status, xhr) {
             if (xhr.status == 200 && data != null) {
                 that.setState({pokeData: data, average_stats: [], types: []});
@@ -38,7 +37,6 @@ const Dashboard = React.createClass({
     },
 
     updateAverageStats: function () {
-        //console.log(this.props.pokeData.types);
         var that = this;
         var types = this.state.pokeData.types.map(function (obj) {
             return new Type(obj.type.name, obj.type.url);
@@ -67,11 +65,12 @@ const Dashboard = React.createClass({
         });
     },
 
-    /*componentDidMount: function () {
-        if (this.state.pokeData != null) {
-            this.updateAverageStats();
-        }
-    },*/
+    logout: function (event) {
+        event.preventDefault();
+        $.get("http://localhost:9000/logout", function(data,status,xhr) {
+            window.location.replace("http://localhost:9000/");
+        });
+    },
 
     render: function () {
         if (this.state.pokemons != null) {
@@ -91,6 +90,9 @@ const Dashboard = React.createClass({
                             ),
                             elm("input", {type: "submit", value: "Search"})
                         )
+                    ),
+                    elm("div", null,
+                        elm("input", {type: "submit", value:"Logout", onClick: this.logout})
                     ),
                     elm("div", {className: "pokedex"},
                         elm(Pokemon, {
