@@ -61,4 +61,8 @@ case class PokeData(count: Int,
                     next: Option[String]
                    )
 
+case class Average(name: String, list: Map[String, Int])
 
+object Average {
+  implicit val averageFormat = Json.format[Average]
+}

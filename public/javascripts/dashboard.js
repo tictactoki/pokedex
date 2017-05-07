@@ -10,6 +10,7 @@ const Dashboard = React.createClass({
             pokemonName: "",
             pokeData: null,
             average_stats: [],
+            types: [],
         };
     },
 
@@ -30,7 +31,7 @@ const Dashboard = React.createClass({
         //console.log(this.state.pokemonName);
         $.get("http://localhost:9000/pokedex?name=" + this.state.pokemonName, function (data, status, xhr) {
             if (xhr.status == 200 && data != null) {
-                that.setState({pokeData: data, average_stats: []});
+                that.setState({pokeData: data, average_stats: [], types: []});
                 that.updateAverageStats();
             }
         });
@@ -54,8 +55,10 @@ const Dashboard = React.createClass({
         $.get("http://localhost:9000/pokemonType?name=" + type.name + "&url=" + type.url, function (data, status, xhr) {
             if (xhr.status == 200 && data != null) {
                 var average = that.state.average_stats;
+                var types = that.state.types;
+                types.push(type.name);
                 average[type.name] = data;
-                that.setState({average_stats: average});
+                that.setState({average_stats: average, types: types});
                 console.log(that.state.average_stats);
             }
             else {
@@ -72,7 +75,6 @@ const Dashboard = React.createClass({
 
     render: function () {
         if (this.state.pokemons != null) {
-            console.log(this.state.average_stats);
             return (
                 elm("div", {className: "dashboard"},
                     elm("form", {onSubmit: this.pokedex},
@@ -93,7 +95,8 @@ const Dashboard = React.createClass({
                     elm("div", {className: "pokedex"},
                         elm(Pokemon, {
                             pokeData: this.state.pokeData,
-                            average_stats: this.state.average_stats
+                            average_stats: this.state.average_stats,
+                            types: this.state.types
                         }, null)
                     )
                 )

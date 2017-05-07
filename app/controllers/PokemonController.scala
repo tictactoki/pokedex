@@ -56,6 +56,11 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
     }.getOrElse(Future.successful(Unauthorized("You have to login")))
   }
 
+  def getPokemonFromType(name: String, url: String) = Action.async { implicit request =>
+    getAverage(name, url).map { list =>
+      Ok(Json.toJson(Average(name,list.toMap)))
+    }.recover{case e => NoContent }
+  }
 
   protected def getOrInsertPokemon(name: String): Future[Pokemon] = {
     findByName(mainCollection)(name).flatMap { po =>
@@ -83,11 +88,6 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
     }
   }
 
-  def getPokemonFromType(name: String, url: String) = Action.async { implicit request =>
-    getAverage(name, url).map { map =>
-      Ok(Json.toJson(map.toMap))
-    }.recover{case e => NoContent }
-  }
 
   protected def getAverageFromList(list: List[(String,String)]) = {
     Future.sequence(list.map {case (name,url) => getAverage(name,url)})
