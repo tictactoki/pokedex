@@ -18,7 +18,7 @@ import models.helpers.{MongoDBFields => CF}
 import models.helpers.MongoCollection._
 
 import scala.collection.mutable
-
+import scala.concurrent.duration._
 /**
   * This controller creates an `Action` to handle HTTP requests to the
   * application's home page.
@@ -34,17 +34,11 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
   override implicit val mainWriter: OWrites[P] = Pokemon.pokemonWriter
 
 
-  protected lazy val pokemons: Future[scala.collection.mutable.HashMap[String, String]] = fillPokemonData
-  protected lazy val pokemonsName = pokemons.map(_.map(_._1).toList)
-  //protected lazy val averageStats =
-  protected lazy val pokemonsData = HashMap[String, Future[Pokemon]]()
+  protected lazy val pokemonsName = fillPokemonData.map(_.map(_._1).toList)
   protected val url = configuration.underlying.getString("pokedex.url")
   protected val pokemonUrl = url + "pokemon/"
 
   def getPokemonData(name: String) = Action.async { implicit request =>
-    /*pokemonsData.getOrElseUpdate(name, createPokemon(name)).map { pokemon =>
-      Ok(Json.toJson(pokemon))
-    }*/
     getOrInsertPokemon(name).map { pokemon =>
       Ok(Json.toJson(pokemon))
     }.recover {
@@ -78,10 +72,10 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
   }
 
   protected def createPokemon(name: String): Future[Pokemon] = {
-    getData(pokemonUrl + name).map { wsr => Pokemon(wsr.json) }
+    getData(pokemonUrl + name).map { wsr => Pokemon(wsr.json)}
   }
 
-  protected def getData(url: String) = ws.url(url).get()
+  protected def getData(url: String) = ws.url(url).withRequestTimeout(300000.millis).get()
 
   protected def getCount(url: String = pokemonUrl): Future[Int] = {
     ws.url(url).get().map { wsr =>
@@ -90,25 +84,30 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
   }
 
   def getPokemonFromType(name: String, url: String) = Action.async { implicit request =>
-    getPokemonsFromType(name,url).map { set =>
-      Ok(Json.toJson(set))
-    }.recover { case e => NoContent}
+    getAverage(name, url).map { map =>
+      Ok(Json.toJson(map.toMap))
+    }.recover{case e => NoContent }
   }
 
-  /*protected def fillPokemonType = {
-    val map = mutable.HashMap[String, mutable.HashSet[String]]()
+  protected def getAverageFromList(list: List[(String,String)]) = {
+    Future.sequence(list.map {case (name,url) => getAverage(name,url)})
+  }
 
-    def fillData(url: String) = {
-      val map = mutable.HashMap[String, String]()
-      getData(url).map { wsr =>
-        wsr.json.validate[PokeData].asOpt.map { pokeData =>
-          pokeData.results.map { data =>
-            map.put(data.name, data.url)
-          }
-        }
-        map
+  protected def getAverage(name: String, url: String) = {
+    getPokemonsFromType(name, url).flatMap { set =>
+      val size = set.size
+      val list = Future.sequence(set.map { name => getOrInsertPokemon(name) }.toList)
+      val res = list.map { pokemons =>
+        pokemons.map { pokemon =>
+          pokemon.stats.map { stat => (stat.stat.name, stat.base_stat) }
+        }.flatten.groupBy(_._1).map { case (name, map) =>
+          (name, map.foldLeft(0)((acc,value) => acc + value._2))
+        }.mapValues( value => (value/size) ).toList
       }
-    }*/
+      res
+      }
+  }
+
 
   protected def getPokemonsFromType(name: String, url: String) = {
     val set = mutable.HashSet[String]()
@@ -116,31 +115,21 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
       (wrs.json \ "pokemon").validate[List[PokemonType]].asOpt.map { pokemonTypes =>
         pokemonTypes.map { pokemonType =>
           set.add(pokemonType.pokemon.name)
-          //val set = map.getOrElse(name, mutable.HashSet[String]())
-          //set.add(pokemonType.pokemon.url)
-          //map.update(name, set)
         }
       }
       set
     }
   }
 
-  /*val l = fillData("http://pokeapi.co/api/v2/type").map { m =>
-    m.toList.map { case (name,url) =>
-      getPokemonsFromType(name,url)
-    }
-  }
-
-}*/
 
   protected def fillPokemonData: Future[scala.collection.mutable.HashMap[String, String]] = {
     val map = scala.collection.mutable.HashMap[String, String]()
 
-
     def fillData(url: String) = {
       getData(url).map { wsr =>
         wsr.json.validate[PokeData].asOpt.map { pokeData =>
-          pokeData.results.map { data => map.put(data.name, data.url) }
+          pokeData.results.map { data =>
+            map.put(data.name, data.url) }
         }
         map
       }

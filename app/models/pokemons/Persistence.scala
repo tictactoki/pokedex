@@ -79,8 +79,8 @@ object Pokemon {
     override def reads(json: JsValue) = json match {
       case obj: JsObject => {
         val id = (obj \ CF.Id).as[String]
-        val stats = (obj \ CF.Stats).asOpt[List[Stat]]
-        val types = (obj \ CF.Types).asOpt[List[Type]]
+        val stats = (obj \ CF.Stats).as[List[Stat]]
+        val types = (obj \ CF.Types).as[List[Type]]
         val name = (obj \ CF.Name).asOpt[String]
         val weight = (obj \ CF.Weight).asOpt[Int]
         val sprites = (obj \ CF.Sprites).asOpt[Sprites]
@@ -107,8 +107,8 @@ object Pokemon {
 
   def apply(json: JsValue): Pokemon = json match {
     case obj: JsObject => {
-      val stats = (obj \ CF.Stats).asOpt[List[Stat]]
-      val types = (obj \ CF.Types).asOpt[List[Type]]
+      val stats = (obj \ CF.Stats).as[List[Stat]]
+      val types = (obj \ CF.Types).as[List[Type]]
       val name = (obj \ CF.Name).asOpt[String]
       val weight = (obj \ CF.Weight).asOpt[Int]
       val sprites = (obj \ CF.Sprites).asOpt[Sprites]
@@ -124,8 +124,8 @@ final case class Pokemon(override val id: String,
                          name: Option[String],
                          weight: Option[Int],
                          height: Option[Int],
-                         stats: Option[List[Stat]],
-                         types: Option[List[Type]],
+                         stats: List[Stat],
+                         types: List[Type],
                          sprites: Option[Sprites],
                          override val dataType: String = "pokemon"
                         ) extends Persistence

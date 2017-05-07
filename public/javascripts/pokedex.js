@@ -17,38 +17,15 @@ const Pokemon = React.createClass({
         };
     },
 
-    getPokemonsFromType: function() {
-
-    },
-
-
-    updateAverageStats: function () {
-        var types = this.props.pokeData.types.map(function (obj) {
-            new Type(obj.type.name, obj.type.url);
-        });
-        types.map(function (type) {
-            this.getAverageStat(type)
-        });
-    },
-
-    getAverageStat: function (type) {
-        var that = this;
-        $.get("http://localhost:9000/type?=" + type.name, function (data, status, xhr) {
-            if (xhr.status == 200 && data != null) {
-                var average = that.state.average_stats;
-                average[type.name] = data;
-                that.setState({average_stats: average});
-            }
-        });
-    },
 
     componentDidMount: function () {
         //this.updateAverageStats();
     },
 
     render: function () {
+        console.log(this.props.average_stats);
         if (this.props.pokeData != null) {
-            console.log(this.props.pokeData);
+            //this.updateAverageStats();
             return (
                 elm("div", null,
                     elm("div", null,
@@ -67,11 +44,11 @@ const Pokemon = React.createClass({
                                 ),
                                 elm("tr", null,
                                     elm("td", null, "Weight"),
-                                    elm("td", null, (this.props.pokeData.weight / 10.0) + " kg")
+                                    elm("td", null, (this.props.pokeData.weight.toFixed(2) / 10.0).toFixed(2) + " kg")
                                 ),
                                 elm("tr", null,
                                     elm("td", null, "Height"),
-                                    elm("td", null, (this.props.pokeData.height / 10.0) + " m")
+                                    elm("td", null, (this.props.pokeData.height / 10.0).toFixed(2) + " m")
                                 )
                             )
                         ),

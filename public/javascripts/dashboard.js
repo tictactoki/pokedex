@@ -6,9 +6,10 @@ const Dashboard = React.createClass({
 
     getInitialState: function () {
         return {
-            pokemons: ["pikachu"],
+            pokemons: [],
             pokemonName: "",
-            pokeData: null
+            pokeData: null,
+            average_stats: [],
         };
     },
 
@@ -27,15 +28,51 @@ const Dashboard = React.createClass({
         event.preventDefault();
         var that = this;
         //console.log(this.state.pokemonName);
-        $.get("http://localhost:9000/pokedex?name=" + this.state.pokemonName, function(data,status,xhr) {
-           if(xhr.status == 200 && data != null) {
-               that.setState({pokeData: data});
-           }
+        $.get("http://localhost:9000/pokedex?name=" + this.state.pokemonName, function (data, status, xhr) {
+            if (xhr.status == 200 && data != null) {
+                that.setState({pokeData: data, average_stats: []});
+                that.updateAverageStats();
+            }
         });
     },
 
+    updateAverageStats: function () {
+        //console.log(this.props.pokeData.types);
+        var that = this;
+        var types = this.state.pokeData.types.map(function (obj) {
+            return new Type(obj.type.name, obj.type.url);
+        });
+        console.log(types);
+        types.map(function (type) {
+            that.getAverageStat(type)
+        });
+    },
+
+    getAverageStat: function (type) {
+        var that = this;
+        console.log("average");
+        $.get("http://localhost:9000/pokemonType?name=" + type.name + "&url=" + type.url, function (data, status, xhr) {
+            if (xhr.status == 200 && data != null) {
+                var average = that.state.average_stats;
+                average[type.name] = data;
+                that.setState({average_stats: average});
+                console.log(that.state.average_stats);
+            }
+            else {
+                console.log("nok");
+            }
+        });
+    },
+
+    /*componentDidMount: function () {
+        if (this.state.pokeData != null) {
+            this.updateAverageStats();
+        }
+    },*/
+
     render: function () {
         if (this.state.pokemons != null) {
+            console.log(this.state.average_stats);
             return (
                 elm("div", {className: "dashboard"},
                     elm("form", {onSubmit: this.pokedex},
@@ -54,7 +91,10 @@ const Dashboard = React.createClass({
                         )
                     ),
                     elm("div", {className: "pokedex"},
-                        elm(Pokemon, {pokeData: this.state.pokeData}, null)
+                        elm(Pokemon, {
+                            pokeData: this.state.pokeData,
+                            average_stats: this.state.average_stats
+                        }, null)
                     )
                 )
             );
