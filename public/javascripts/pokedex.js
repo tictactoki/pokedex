@@ -27,27 +27,11 @@ const Pokemon = React.createClass({
             elm("td", null, stat.list["attack"]),
             elm("td", null, stat.list["hp"])
         );
-        this.forceUpdate();
     },
 
     render: function () {
         var that = this;
         if (this.props.pokeData != null) {
-            var stats = elm("div",null,null);
-            if(this.props.average_stats.length > 1) {
-                stats = this.props.average_stats.map(function(stat){
-                    return that.createAverageElement(stat)
-                });
-            }
-            console.log(stats);
-            if(this.props.average_stats["fire"] != null) {
-                console.log(typeof this.props.average_stats);
-                this.props.average_stats.forEach(function(stat){
-                    console.log(stat);
-                });
-                console.log(this.props.average_stats["fire"].list);
-            }
-            //this.updateAverageStats();
             return (
                 elm("div", null,
                     elm("div", null,
@@ -104,13 +88,13 @@ const Pokemon = React.createClass({
                     elm("table", null,
                         elm("tbody", null,
                             elm("tr", null,
-                                elm("td", null, "name"),
-                                elm("td", null, "speed"),
-                                elm("td", null, "special-defense"),
-                                elm("td", null, "special-attack"),
-                                elm("td", null, "defense"),
-                                elm("td", null, "attack"),
-                                elm("td", null, "hp")
+                                elm("th", null, "type"),
+                                elm("th", null, "speed"),
+                                elm("th", null, "special-defense"),
+                                elm("th", null, "special-attack"),
+                                elm("th", null, "defense"),
+                                elm("th", null, "attack"),
+                                elm("th", null, "hp")
                             ),
                             this.props.types.map(function(type) {
                                 var stat = that.props.average_stats[type];
