@@ -6,6 +6,7 @@
 # An example controller showing a sample home page
 GET     /pokedex                    controllers.PokemonController.getPokemonData(name: String)
 GET     /autocomplete               controllers.PokemonController.autocomplete(prefix: String)
+GET     /pokemonType                controllers.PokemonController.getPokemonFromType(name: String, url: String)
 
 GET     /                           controllers.UserController.index
 GET     /logout                     controllers.UserController.logout

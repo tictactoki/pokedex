@@ -17,6 +17,11 @@ const Pokemon = React.createClass({
         };
     },
 
+    getPokemonsFromType: function() {
+
+    },
+
+
     updateAverageStats: function () {
         var types = this.props.pokeData.types.map(function (obj) {
             new Type(obj.type.name, obj.type.url);

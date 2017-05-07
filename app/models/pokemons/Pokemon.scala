@@ -45,11 +45,11 @@ object Type {
   implicit val typeFomart = Json.format[Type]
 }
 
-case class Ability(id: Int,
-                   name: String,
-                   ability: Couple
+case class PokemonType(slot: Int, pokemon: Couple)
 
-                  )
+object PokemonType {
+  implicit val pokemonTypeFormat = Json.format[PokemonType]
+}
 
 object PokeData {
   implicit val pokeDataFormat = Json.format[PokeData]
