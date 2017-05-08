@@ -27,7 +27,7 @@ const Dashboard = React.createClass({
         });
     },
 
-    checkPokemonBookmarked: function(name) {
+    checkPokemonBookmarked: function (name) {
         var index = this.state.bookmarks.indexOf(name);
         return (index >= 0);
     },
@@ -37,11 +37,11 @@ const Dashboard = React.createClass({
         this.getPokemon(this.state.pokemonName);
     },
 
-    getPokemon: function(name){
+    getPokemon: function (name) {
         var that = this;
         $.get("http://localhost:9000/pokedex?name=" + name, function (data, status, xhr) {
             if (xhr.status == 200 && data != null) {
-                var bookmarked = that.checkPokemonBookmarked(that.state.pokemonName);
+                var bookmarked = that.checkPokemonBookmarked(name);
                 that.setState({pokeData: data, average_stats: [], types: [], bookmarked: bookmarked});
                 that.updateAverageStats();
             }
@@ -74,20 +74,20 @@ const Dashboard = React.createClass({
         });
     },
 
-    getBookmarks: function() {
+    getBookmarks: function () {
         var that = this;
-        $.get("http://localhost:9000/bookmarks", function(data,status,xhr) {
-            if(xhr.status == 200 && data != null) {
+        $.get("http://localhost:9000/bookmarks", function (data, status, xhr) {
+            if (xhr.status == 200 && data != null) {
                 that.setState({bookmarks: data});
             }
         });
     },
 
-    bookmarkPokemon: function(event, name) {
+    bookmarkPokemon: function (event, name) {
         event.preventDefault();
         var that = this;
-        $.get("http://localhost:9000/bookmarkPokemon?name=" + name, function(data,status,xhr) {
-            if(xhr.status == 200){
+        $.get("http://localhost:9000/bookmarkPokemon?name=" + name, function (data, status, xhr) {
+            if (xhr.status == 200) {
                 var bookmarks = that.state.bookmarks;
                 bookmarks.push(name);
                 that.setState({bookmarks: bookmarks, bookmarked: true});
@@ -95,11 +95,11 @@ const Dashboard = React.createClass({
         });
     },
 
-    removeBookmark: function(event, name) {
+    removeBookmark: function (event, name) {
         event.preventDefault();
         var that = this;
-        $.get("http://localhost:9000/removeBookmark?name=" + name, function(data,status,xhr) {
-            if(xhr.status == 200){
+        $.get("http://localhost:9000/removeBookmark?name=" + name, function (data, status, xhr) {
+            if (xhr.status == 200) {
                 var bookmarks = that.state.bookmarks;
                 var index = bookmarks.indexOf(name);
                 bookmarks.splice(index, 1);
@@ -108,36 +108,36 @@ const Dashboard = React.createClass({
         });
     },
 
-    selectPokemon: function(event) {
-      event.preventDefault();
-      var value = event.target.value;
-      this.getPokemon(value);
+    selectPokemon: function (event) {
+        event.preventDefault();
+        var value = event.target.value;
+        this.getPokemon(value);
     },
 
-    createBookmarkSelect: function() {
+    createBookmarkSelect: function () {
         var element = null;
-        if(this.state.bookmarks.length > 0) {
-            element = elm("select", {id: "bookmarks", onChange: this.selectPokemon},
-                this.state.bookmarks.map(function(name) {
+        if (this.state.bookmarks.length > 0) {
+            element = elm("select", {id: "bookmarks", onChange: this.selectPokemon, className: "form-control"},
+                this.state.bookmarks.map(function (name) {
                     return elm("option", {value: name}, name);
                 })
             );
         }
         else {
-            element = elm("div", null,null);
+            element = elm("div", null, null);
         }
         return element;
     },
 
     logout: function (event) {
         event.preventDefault();
-        $.get("http://localhost:9000/logout", function(data,status,xhr) {
+        $.get("http://localhost:9000/logout", function (data, status, xhr) {
             window.location.replace("http://localhost:9000/");
         });
     },
 
-    componentDidMount: function() {
-      this.getBookmarks();
+    componentDidMount: function () {
+        this.getBookmarks();
     },
 
     render: function () {
@@ -145,24 +145,38 @@ const Dashboard = React.createClass({
         if (this.state.pokemons != null) {
             return (
                 elm("div", {className: "dashboard"},
-                    elm("form", {onSubmit: this.pokedex},
-                        elm("div", {className: "search"},
-                            elm("input", {
-                                onChange: this.autocompleteName,
-                                value: this.state.pokemonName,
-                                type: "text",
-                                list: "pokemons"
-                            }, null),
-                            elm("datalist", {id: "pokemons"}, this.state.pokemons.map(function (pokemon) {
-                                    return elm("option", {value: pokemon}, pokemon);
-                                })
+                    elm("nav", {className: "navbar navbar-default"},
+                        elm("form", {onSubmit: this.pokedex, className: "navbar-form"},
+                            elm("div", {className: "form-group"},
+                                elm("input", {
+                                    onChange: this.autocompleteName,
+                                    value: this.state.pokemonName,
+                                    type: "text",
+                                    list: "pokemons",
+                                    className: "form-control"
+                                }, null),
+                                elm("datalist", {id: "pokemons"}, this.state.pokemons.map(function (pokemon) {
+                                        return elm("option", {value: pokemon}, pokemon);
+                                    })
+                                ),
+                                elm("button", {type: "submit", className: "btn btn-primary form-control"},
+                                    elm("i", {className: "glyphicon glyphicon-search"}, null)
+                                ),
+                                select
                             ),
-                            elm("input", {type: "submit", value: "Search"})
+                            elm("ul", {className: "nav navbar-nav navbar-right"},
+                                elm("button", {
+                                    type: "button",
+                                    value: "Logout",
+                                    onClick: this.logout,
+                                    className: "btn btn-primary form-control"
+                                }, "Logout")
+                            )
                         )
-                    ),
-                    elm("div", null, select),
-                    elm("div", null,
-                        elm("input", {type: "submit", value:"Logout", onClick: this.logout})
+                        //elm("div", null, select),
+                        /*elm("div", null,
+                         elm("button", {type: "submit", value: "Logout", onClick: this.logout, className: "btn btn-lg btn-primary btn-block"}, "Logout")
+                         )*/
                     ),
                     elm("div", {className: "pokedex"},
                         elm(Pokemon, {
@@ -198,7 +212,7 @@ const Dashboard = React.createClass({
                     ),
                     elm("div", null, select),
                     elm("div", null,
-                        elm("input", {type: "submit", value:"Logout", onClick: this.logout})
+                        elm("input", {type: "submit", value: "Logout", onClick: this.logout})
                     )
                 )
             );

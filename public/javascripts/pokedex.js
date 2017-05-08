@@ -48,10 +48,11 @@ const Pokemon = React.createClass({
             return (
                 elm("div", null,
                     elm("div", null,
-                        elm("table", null,
+                        elm("table", {className: "table table-striped"},
                             elm("tbody", null,
                                 elm("tr", null,
-                                    elm("th", {colspan: "2"}, "Informations")
+                                    elm("th", {colspan: "2"}, "Informations"),
+                                    elm("th", null, "Values")
                                 ),
                                 elm("tr", null,
                                     elm("td", null, "Image"),
@@ -77,7 +78,7 @@ const Pokemon = React.createClass({
                                 )
                             )
                         ),
-                        elm("table", null,
+                        elm("table", {className: "table table-striped"},
                             elm("tbody", null,
                                 elm("tr", null,
                                     elm("th", null, "Types")
@@ -92,7 +93,7 @@ const Pokemon = React.createClass({
                             )
                         )
                     ),
-                    elm("table", null,
+                    elm("table", {className: "table table-striped"},
                         elm("tbody", null,
                             elm("tr", null, this.props.pokeData.stats.map(function (data) {
                                     return elm("th", null, data.stat.name);
@@ -104,7 +105,7 @@ const Pokemon = React.createClass({
                             )
                         )
                     ),
-                    elm("table", null,
+                    elm("table", {className: "table table-striped"},
                         elm("tbody", null,
                             elm("tr", null,
                                 elm("th", null, "type"),
