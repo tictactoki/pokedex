@@ -40,11 +40,13 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
   protected val pokemonUrl = url + "pokemon/"
 
   def getPokemonData(name: String) = Action.async { implicit request =>
-    getOrInsertPokemon(name).map { pokemon =>
-      Ok(Json.toJson(pokemon))
-    }.recover {
-      case _ => NoContent
-    }
+    request.session.get(CF.Id).map { id =>
+      getOrInsertPokemon(name).map { pokemon =>
+        Ok(Json.toJson(pokemon))
+      }.recover {
+        case _ => NoContent
+      }
+    }.getOrElse(Future.successful(Unauthorized("You have to login")))
   }
 
   def autocomplete(prefix: String) = Action.async { implicit request =>
@@ -58,9 +60,11 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
   }
 
   def getPokemonFromType(name: String, url: String) = Action.async { implicit request =>
-    getAverage(name, url).map { list =>
-      Ok(Json.toJson(Average(name, list.toMap)))
-    }.recover { case e => NoContent }
+    request.session.get(CF.Id).map { id =>
+      getAverage(name, url).map { list =>
+        Ok(Json.toJson(Average(name, list.toMap)))
+      }.recover { case e => NoContent }
+    }.getOrElse(Future.successful(Unauthorized("You have to login")))
   }
 
   protected def getOrInsertPokemon(name: String): Future[Pokemon] = {
@@ -88,7 +92,6 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
       wsr.json.validate[PokeData].asOpt.map(_.count).getOrElse(0)
     }
   }
-
 
   protected def getAverageFromList(list: List[(String, String)]) = {
     Future.sequence(list.map { case (name, url) => getAverage(name, url) })
