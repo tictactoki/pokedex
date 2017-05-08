@@ -31,8 +31,8 @@ class BookMarkController @Inject()(override val reactiveMongoApi: ReactiveMongoA
   def getBookmarks = Action.async { implicit request =>
     request.session.get(Name).map { name =>
       find(mainCollection)(Name,name).map { bookmarks =>
-        Ok(Json.toJson(bookmarks.map(_.pokemon).toSet))
-      }.recover { case e => NoContent }
+        Ok(Json.toJson(bookmarks.map(_.pokemon)))
+      }.recover { case e => Conflict(e.getMessage) }
     }.getOrElse(Future.successful(Unauthorized("Need to log in")))
   }
 
@@ -46,8 +46,6 @@ class BookMarkController @Inject()(override val reactiveMongoApi: ReactiveMongoA
   }
 
   def removeBookmark(name: String) = Action.async { implicit request =>
-    import play.modules.reactivemongo.json._
-    import play.modules.reactivemongo.json.ImplicitBSONHandlers._
     request.session.get(Name).map { n =>
       val obj = Json.obj("pokemon" -> name, "name" -> n).as[Book]
       mainCollection.flatMap(_.remove(obj)).map { res =>

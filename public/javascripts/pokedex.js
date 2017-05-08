@@ -30,23 +30,22 @@ const Pokemon = React.createClass({
     checkButton: function(event) {
         event.preventDefault();
         this.setState({bookmarked: true});
-        this.props.checkButton(event);
+        this.props.checkButton(event, this.props.pokeData.name);
     },
 
     unCheckButton: function(event){
         event.preventDefault();
         this.setState({bookmarked: false});
-        this.props.unCheckButton(event);
+        this.props.unCheckButton(event, this.props.pokeData.name);
     },
 
     createBookmarkedButton: function() {
         var button = null;
-        console.log(this.state.bookmarked);
         if(this.state.bookmarked){
-            button = elm("input", {type: "checkbox", value: this.props.pokeData.name, onClick: this.unCheckButton, defaultChecked: true}, null);
+            button = elm("input", {type: "checkbox", value: this.props.pokeData.name, onClick: this.unCheckButton, checked: true}, null);
         }
         else {
-            button = elm("input", {type: "checkbox", value: this.props.pokeData.name, onClick: this.checkButton, defaultChecked: false}, null);
+            button = elm("input", {type: "checkbox", value: this.props.pokeData.name, onClick: this.checkButton, checked: false}, null);
         }
         return button;
     },

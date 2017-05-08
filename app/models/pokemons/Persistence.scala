@@ -75,7 +75,7 @@ object Bookmark {
 
   implicit val bookmarkWriter: OWrites[Bookmark] = new OWrites[Bookmark] {
     override def writes(o: Bookmark) = Json.obj(
-      //CF.Id -> generateBSONId,
+      CF.Id -> generateBSONId,
       CF.Name -> o.name,
       CF.Pokemon -> o.pokemon
     )

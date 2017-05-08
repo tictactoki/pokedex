@@ -72,10 +72,10 @@ const Dashboard = React.createClass({
         });
     },
 
-    bookmarkPokemon: function(event) {
+    bookmarkPokemon: function(event, name) {
         event.preventDefault();
         var that = this;
-        $.get("http://localhost:9000/bookmarkPokemon?name=" + this.state.pokemonName, function(data,status,xhr) {
+        $.get("http://localhost:9000/bookmarkPokemon?name=" + name, function(data,status,xhr) {
             if(xhr.status == 200){
                 var bookmarks = that.state.bookmarks;
                 bookmarks.push(name);
@@ -84,14 +84,16 @@ const Dashboard = React.createClass({
         });
     },
 
-    removeBookmark: function(event) {
+    removeBookmark: function(event, name) {
         event.preventDefault();
         var that = this;
-        $.get("http://localhost:9000/removeBookmark?name=" + this.state.pokemonName, function(data,status,xhr) {
+        $.get("http://localhost:9000/removeBookmark?name=" + name, function(data,status,xhr) {
             if(xhr.status == 200){
                 var bookmarks = that.state.bookmarks;
+                console.log(bookmarks);
                 var index = bookmarks.indexOf(name);
-                bookmarks.slice(index, 1);
+                bookmarks.splice(index, 1);
+                console.log(bookmarks);
                 that.setState({bookmarks: bookmarks});
             }
         });
@@ -120,6 +122,7 @@ const Dashboard = React.createClass({
     },
 
     componentDidMount: function() {
+        console.log("test");
       this.getBookmarks();
     },
 
