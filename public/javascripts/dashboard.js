@@ -90,7 +90,8 @@ const Dashboard = React.createClass({
         $.get("http://localhost:9000/removeBookmark?name=" + this.state.pokemonName, function(data,status,xhr) {
             if(xhr.status == 200){
                 var bookmarks = that.state.bookmarks;
-                bookmarks.remove(name);
+                var index = bookmarks.indexOf(name);
+                bookmarks.slice(index, 1);
                 that.setState({bookmarks: bookmarks});
             }
         });

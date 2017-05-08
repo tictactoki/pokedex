@@ -29,16 +29,19 @@ const Pokemon = React.createClass({
 
     checkButton: function(event) {
         event.preventDefault();
+        this.setState({bookmarked: true});
         this.props.checkButton(event);
     },
 
     unCheckButton: function(event){
         event.preventDefault();
+        this.setState({bookmarked: false});
         this.props.unCheckButton(event);
     },
 
     createBookmarkedButton: function() {
         var button = null;
+        console.log(this.state.bookmarked);
         if(this.state.bookmarked){
             button = elm("input", {type: "checkbox", value: this.props.pokeData.name, onClick: this.unCheckButton, defaultChecked: true}, null);
         }
@@ -56,7 +59,6 @@ const Pokemon = React.createClass({
         var that = this;
         if (this.props.pokeData != null) {
             var button = this.createBookmarkedButton();
-            console.log(button);
             return (
                 elm("div", null,
                     elm("div", null,

@@ -49,6 +49,11 @@ object Persistence {
 
 }
 
+case class Book(name: String, pokemon: String)
+object Book {
+  implicit val bookFormat = Json.format[Book]
+}
+
 final case class Bookmark(override val id: String,
                           name: String,
                           pokemon: String,
@@ -70,7 +75,7 @@ object Bookmark {
 
   implicit val bookmarkWriter: OWrites[Bookmark] = new OWrites[Bookmark] {
     override def writes(o: Bookmark) = Json.obj(
-      CF.Id -> generateBSONId,
+      //CF.Id -> generateBSONId,
       CF.Name -> o.name,
       CF.Pokemon -> o.pokemon
     )

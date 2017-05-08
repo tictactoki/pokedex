@@ -2,7 +2,7 @@ package controllers
 
 import javax.inject.Inject
 
-import models.pokemons.{Bookmark, SignUp, User}
+import models.pokemons.{Book, Bookmark, SignUp, User}
 import play.api.libs.json.{Json, OWrites, Reads}
 import play.modules.reactivemongo.ReactiveMongoApi
 import javax.inject.Singleton
@@ -16,6 +16,7 @@ import models.helpers.MongoDBFields._
 import models.helpers.Generator._
 import org.mindrot.jbcrypt.BCrypt
 import models.helpers.MongoCollection._
+
 /**
   * Created by wong on 08/05/17.
   */
@@ -45,8 +46,10 @@ class BookMarkController @Inject()(override val reactiveMongoApi: ReactiveMongoA
   }
 
   def removeBookmark(name: String) = Action.async { implicit request =>
+    import play.modules.reactivemongo.json._
+    import play.modules.reactivemongo.json.ImplicitBSONHandlers._
     request.session.get(Name).map { n =>
-      val obj = Json.obj("pokemon" -> name, "name" -> n)
+      val obj = Json.obj("pokemon" -> name, "name" -> n).as[Book]
       mainCollection.flatMap(_.remove(obj)).map { res =>
         if(res.ok) Ok("")
         else Conflict("")
