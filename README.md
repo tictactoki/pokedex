@@ -11,6 +11,8 @@ Technologies
 
 [SBT](http://www.scala-sbt.org/)
 
+[MongoDB](https://docs.mongodb.com/manual/)
+
 [Reactive mongo](http://reactivemongo.org/)
 
 [Scala](https://www.scala-lang.org/)
@@ -29,6 +31,9 @@ Go to public/ directory and write the command:
 >```bower update```
 
 It's mandatory to have libs.
+
+Run mongodb on you shell:
+>```mongod --dbpath pathOfYourDB```
 
 Then run sbt at the root directory:
 >```sbt```
