@@ -13,7 +13,7 @@ object MongoDBFields {
   final val Types = "types"
   final val Sprites = "sprites"
   final val Password = "password"
-  final val Pokemons = "pokemons"
+  final val Pokemon = "pokemon"
 
 }
 

@@ -12,26 +12,51 @@ const Pokemon = React.createClass({
 
     getInitialState: function () {
         return {
-            types: null,
+            bookmarked: false,
         };
     },
 
-    createAverageElement: function(stat) {
-        console.log(stat);
-        return elm("tr", null,
-            elm("td", null, stat.name),
-            elm("td", null, stat.list["speed"]),
-            elm("td", null, stat.list["special-defense"]),
-            elm("td", null, stat.list["special-attack"]),
-            elm("td", null, stat.list["defense"]),
-            elm("td", null, stat.list["attack"]),
-            elm("td", null, stat.list["hp"])
-        );
+    isBookmarked: function() {
+        var that = this;
+        for(var i=0; i < this.props.bookmarks.length; i++) {
+            if(this.props.bookmarks[i] == this.props.pokeData.name){
+                that.setState({bookmarked: true});
+                return;
+            }
+        }
+        that.setState({bookmarked: false});
+    },
+
+    checkButton: function(event) {
+        event.preventDefault();
+        this.props.checkButton(event);
+    },
+
+    unCheckButton: function(event){
+        event.preventDefault();
+        this.props.unCheckButton(event);
+    },
+
+    createBookmarkedButton: function() {
+        var button = null;
+        if(this.state.bookmarked){
+            button = elm("input", {type: "checkbox", value: this.props.pokeData.name, onClick: this.unCheckButton, defaultChecked: true}, null);
+        }
+        else {
+            button = elm("input", {type: "checkbox", value: this.props.pokeData.name, onClick: this.checkButton, defaultChecked: false}, null);
+        }
+        return button;
+    },
+
+    componentDidMount: function() {
+        this.isBookmarked();
     },
 
     render: function () {
         var that = this;
         if (this.props.pokeData != null) {
+            var button = this.createBookmarkedButton();
+            console.log(button);
             return (
                 elm("div", null,
                     elm("div", null,
@@ -55,6 +80,10 @@ const Pokemon = React.createClass({
                                 elm("tr", null,
                                     elm("td", null, "Height"),
                                     elm("td", null, (this.props.pokeData.height / 10.0).toFixed(2) + " m")
+                                ),
+                                elm("tr", null,
+                                    elm("td", null, "Bookmark"),
+                                    elm("td", null, button)
                                 )
                             )
                         ),

@@ -50,7 +50,8 @@ object Persistence {
 }
 
 final case class Bookmark(override val id: String,
-                          pokemons: Option[List[String]],
+                          name: String,
+                          pokemon: String,
                           dataType: String = "bookmark"
                          ) extends Persistence
 
@@ -59,8 +60,9 @@ object Bookmark {
     override def reads(json: JsValue) = json match {
       case obj: JsObject => {
         val id = (obj \ CF.Id).as[String]
-        val pokemons = (obj \ CF.Pokemons).asOpt[List[String]]
-        JsSuccess(Bookmark(id, pokemons))
+        val name = (obj \ CF.Name).as[String]
+        val pokemon = (obj \ CF.Pokemon).as[String]
+        JsSuccess(Bookmark(id, name, pokemon))
       }
       case _ => JsError("Data not expected")
     }
@@ -68,8 +70,9 @@ object Bookmark {
 
   implicit val bookmarkWriter: OWrites[Bookmark] = new OWrites[Bookmark] {
     override def writes(o: Bookmark) = Json.obj(
-      CF.Id -> o.id,
-      CF.Pokemons -> o.pokemons
+      CF.Id -> generateBSONId,
+      CF.Name -> o.name,
+      CF.Pokemon -> o.pokemon
     )
   }
 }

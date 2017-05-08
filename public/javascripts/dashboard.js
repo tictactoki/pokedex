@@ -11,6 +11,7 @@ const Dashboard = React.createClass({
             pokeData: null,
             average_stats: [],
             types: [],
+            bookmarks: []
         };
     },
 
@@ -41,7 +42,6 @@ const Dashboard = React.createClass({
         var types = this.state.pokeData.types.map(function (obj) {
             return new Type(obj.type.name, obj.type.url);
         });
-        console.log(types);
         types.map(function (type) {
             that.getAverageStat(type)
         });
@@ -49,7 +49,6 @@ const Dashboard = React.createClass({
 
     getAverageStat: function (type) {
         var that = this;
-        console.log("average");
         $.get("http://localhost:9000/pokemonType?name=" + type.name + "&url=" + type.url, function (data, status, xhr) {
             if (xhr.status == 200 && data != null) {
                 var average = that.state.average_stats;
@@ -57,12 +56,59 @@ const Dashboard = React.createClass({
                 types.push(type.name);
                 average[type.name] = data;
                 that.setState({average_stats: average, types: types});
-                console.log(that.state.average_stats);
             }
             else {
-                console.log("nok");
+                console.log("KO on data type");
             }
         });
+    },
+
+    getBookmarks: function() {
+        var that = this;
+        $.get("http://localhost:9000/bookmarks", function(data,status,xhr) {
+            if(xhr.status == 200 && data != null) {
+                that.setState({bookmarks: data});
+            }
+        });
+    },
+
+    bookmarkPokemon: function(event) {
+        event.preventDefault();
+        var that = this;
+        $.get("http://localhost:9000/bookmarkPokemon?name=" + this.state.pokemonName, function(data,status,xhr) {
+            if(xhr.status == 200){
+                var bookmarks = that.state.bookmarks;
+                bookmarks.push(name);
+                that.setState({bookmarks: bookmarks});
+            }
+        });
+    },
+
+    removeBookmark: function(event) {
+        event.preventDefault();
+        var that = this;
+        $.get("http://localhost:9000/removeBookmark?name=" + this.state.pokemonName, function(data,status,xhr) {
+            if(xhr.status == 200){
+                var bookmarks = that.state.bookmarks;
+                bookmarks.remove(name);
+                that.setState({bookmarks: bookmarks});
+            }
+        });
+    },
+
+    createBookmarkSelect: function() {
+        var element = null;
+        if(this.state.bookmarks.length > 1) {
+            element = elm("select", {id: "bookmarks"},
+                this.state.bookmarks.map(function(name) {
+                    return elm("option", {value: name}, name);
+                })
+            );
+        }
+        else {
+            element = elm("div", null,null);
+        }
+        return element;
     },
 
     logout: function (event) {
@@ -72,7 +118,12 @@ const Dashboard = React.createClass({
         });
     },
 
+    componentDidMount: function() {
+      this.getBookmarks();
+    },
+
     render: function () {
+        var select = this.createBookmarkSelect();
         if (this.state.pokemons != null) {
             return (
                 elm("div", {className: "dashboard"},
@@ -91,6 +142,7 @@ const Dashboard = React.createClass({
                             elm("input", {type: "submit", value: "Search"})
                         )
                     ),
+                    elm("div", null, select),
                     elm("div", null,
                         elm("input", {type: "submit", value:"Logout", onClick: this.logout})
                     ),
@@ -98,7 +150,10 @@ const Dashboard = React.createClass({
                         elm(Pokemon, {
                             pokeData: this.state.pokeData,
                             average_stats: this.state.average_stats,
-                            types: this.state.types
+                            types: this.state.types,
+                            bookmarks: this.state.bookmarks,
+                            checkButton: this.bookmarkPokemon,
+                            unCheckButton: this.removeBookmark
                         }, null)
                     )
                 )
@@ -107,8 +162,25 @@ const Dashboard = React.createClass({
         else {
             return (
                 elm("div", {className: "dashboard"},
-                    elm("input", {onChange: this.autocompleteName, type: "text", list: "pokemons"}, null),
-                    elm("datalist", {id: "pokemons"}, null)
+                    elm("form", {onSubmit: this.pokedex},
+                        elm("div", {className: "search"},
+                            elm("input", {
+                                onChange: this.autocompleteName,
+                                value: this.state.pokemonName,
+                                type: "text",
+                                list: "pokemons"
+                            }, null),
+                            elm("datalist", {id: "pokemons"}, this.state.pokemons.map(function (pokemon) {
+                                    return elm("option", {value: pokemon}, pokemon);
+                                })
+                            ),
+                            elm("input", {type: "submit", value: "Search"})
+                        )
+                    ),
+                    elm("div", null, select),
+                    elm("div", null,
+                        elm("input", {type: "submit", value:"Logout", onClick: this.logout})
+                    )
                 )
             );
         }

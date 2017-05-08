@@ -12,7 +12,7 @@ import reactivemongo.play.json.collection.JSONCollection
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import models.helpers.MongoDBFields.Id
+import models.helpers.MongoDBFields._
 import models.helpers.Generator._
 import org.mindrot.jbcrypt.BCrypt
 import models.helpers.MongoCollection._
@@ -47,13 +47,13 @@ class UserController @Inject()(override val reactiveMongoApi: ReactiveMongoApi, 
         findByName(mainCollection)(signUp.name).flatMap { ou =>
           if(ou.isDefined) {
             val validPass = BCrypt.checkpw(signUp.password, ou.get.password)
-            if(validPass) Future.successful(Redirect(routes.UserController.index).withSession(Id -> ou.get.id))
+            if(validPass) Future.successful(Redirect(routes.UserController.index).withSession(Id -> ou.get.id, Name -> signUp.name))
             else Future.successful(Redirect(routes.UserController.index))
           }
           else {
             val user = User(name = signUp.name, password = BCrypt.hashpw(signUp.password,salt))
             insert(mainCollection)(user).map { wr =>
-              if(wr.ok) Redirect(routes.UserController.index).withSession(Id -> user.id)
+              if(wr.ok) Redirect(routes.UserController.index).withSession(Id -> user.id, Name -> signUp.name)
               else Redirect(routes.UserController.index)
             }
           }

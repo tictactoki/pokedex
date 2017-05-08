@@ -51,11 +51,15 @@ trait MongoCRUD { self: CommonController =>
 
 
   protected def findByField(mainCollection: Future[JSONCollection])(field: String, value: String) = {
+    find(mainCollection)(field,value).map(_.headOption)
+  }
+
+  protected def find(mainCollection: Future[JSONCollection])(field: String, value: String) = {
     for {
       collection <- mainCollection
       list <- collection.find(fieldQuery(field,value)).cursor[P]().collect[List]()
     } yield {
-      list.headOption
+      list
     }
   }
 

@@ -19,6 +19,7 @@ import models.helpers.MongoCollection._
 
 import scala.collection.mutable
 import scala.concurrent.duration._
+
 /**
   * This controller creates an `Action` to handle HTTP requests to the
   * application's home page.
@@ -58,8 +59,8 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
 
   def getPokemonFromType(name: String, url: String) = Action.async { implicit request =>
     getAverage(name, url).map { list =>
-      Ok(Json.toJson(Average(name,list.toMap)))
-    }.recover{case e => NoContent }
+      Ok(Json.toJson(Average(name, list.toMap)))
+    }.recover { case e => NoContent }
   }
 
   protected def getOrInsertPokemon(name: String): Future[Pokemon] = {
@@ -77,7 +78,7 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
   }
 
   protected def createPokemon(name: String): Future[Pokemon] = {
-    getData(pokemonUrl + name).map { wsr => Pokemon(wsr.json)}
+    getData(pokemonUrl + name).map { wsr => Pokemon(wsr.json) }
   }
 
   protected def getData(url: String) = ws.url(url).withRequestTimeout(300000.millis).get()
@@ -89,8 +90,8 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
   }
 
 
-  protected def getAverageFromList(list: List[(String,String)]) = {
-    Future.sequence(list.map {case (name,url) => getAverage(name,url)})
+  protected def getAverageFromList(list: List[(String, String)]) = {
+    Future.sequence(list.map { case (name, url) => getAverage(name, url) })
   }
 
   protected def getAverage(name: String, url: String) = {
@@ -101,11 +102,11 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
         pokemons.map { pokemon =>
           pokemon.stats.map { stat => (stat.stat.name, stat.base_stat) }
         }.flatten.groupBy(_._1).map { case (name, map) =>
-          (name, map.foldLeft(0)((acc,value) => acc + value._2))
-        }.mapValues( value => (value/size) ).toList
+          (name, map.foldLeft(0)((acc, value) => acc + value._2))
+        }.mapValues(value => (value / size)).toList
       }
       res
-      }
+    }
   }
 
 
@@ -129,7 +130,8 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
       getData(url).map { wsr =>
         wsr.json.validate[PokeData].asOpt.map { pokeData =>
           pokeData.results.map { data =>
-            map.put(data.name, data.url) }
+            map.put(data.name, data.url)
+          }
         }
         map
       }
