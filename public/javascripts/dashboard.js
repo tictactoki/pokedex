@@ -29,14 +29,17 @@ const Dashboard = React.createClass({
 
     checkPokemonBookmarked: function(name) {
         var index = this.state.bookmarks.indexOf(name);
-        console.log(index);
         return (index >= 0);
     },
 
     pokedex: function (event) {
         event.preventDefault();
+        this.getPokemon(this.state.pokemonName);
+    },
+
+    getPokemon: function(name){
         var that = this;
-        $.get("http://localhost:9000/pokedex?name=" + this.state.pokemonName, function (data, status, xhr) {
+        $.get("http://localhost:9000/pokedex?name=" + name, function (data, status, xhr) {
             if (xhr.status == 200 && data != null) {
                 var bookmarked = that.checkPokemonBookmarked(that.state.pokemonName);
                 that.setState({pokeData: data, average_stats: [], types: [], bookmarked: bookmarked});
@@ -105,10 +108,16 @@ const Dashboard = React.createClass({
         });
     },
 
+    selectPokemon: function(event) {
+      event.preventDefault();
+      var value = event.target.value;
+      this.getPokemon(value);
+    },
+
     createBookmarkSelect: function() {
         var element = null;
         if(this.state.bookmarks.length > 0) {
-            element = elm("select", {id: "bookmarks"},
+            element = elm("select", {id: "bookmarks", onChange: this.selectPokemon},
                 this.state.bookmarks.map(function(name) {
                     return elm("option", {value: name}, name);
                 })
