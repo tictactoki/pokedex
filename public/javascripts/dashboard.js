@@ -11,7 +11,8 @@ const Dashboard = React.createClass({
             pokeData: null,
             average_stats: [],
             types: [],
-            bookmarks: []
+            bookmarks: [],
+            bookmarked: false
         };
     },
 
@@ -26,12 +27,19 @@ const Dashboard = React.createClass({
         });
     },
 
+    checkPokemonBookmarked: function(name) {
+        var index = this.state.bookmarks.indexOf(name);
+        console.log(index);
+        return (index >= 0);
+    },
+
     pokedex: function (event) {
         event.preventDefault();
         var that = this;
         $.get("http://localhost:9000/pokedex?name=" + this.state.pokemonName, function (data, status, xhr) {
             if (xhr.status == 200 && data != null) {
-                that.setState({pokeData: data, average_stats: [], types: []});
+                var bookmarked = that.checkPokemonBookmarked(that.state.pokemonName);
+                that.setState({pokeData: data, average_stats: [], types: [], bookmarked: bookmarked});
                 that.updateAverageStats();
             }
         });
@@ -79,7 +87,7 @@ const Dashboard = React.createClass({
             if(xhr.status == 200){
                 var bookmarks = that.state.bookmarks;
                 bookmarks.push(name);
-                that.setState({bookmarks: bookmarks});
+                that.setState({bookmarks: bookmarks, bookmarked: true});
             }
         });
     },
@@ -90,11 +98,9 @@ const Dashboard = React.createClass({
         $.get("http://localhost:9000/removeBookmark?name=" + name, function(data,status,xhr) {
             if(xhr.status == 200){
                 var bookmarks = that.state.bookmarks;
-                console.log(bookmarks);
                 var index = bookmarks.indexOf(name);
                 bookmarks.splice(index, 1);
-                console.log(bookmarks);
-                that.setState({bookmarks: bookmarks});
+                that.setState({bookmarks: bookmarks, bookmarked: false});
             }
         });
     },
@@ -156,7 +162,8 @@ const Dashboard = React.createClass({
                             types: this.state.types,
                             bookmarks: this.state.bookmarks,
                             checkButton: this.bookmarkPokemon,
-                            unCheckButton: this.removeBookmark
+                            unCheckButton: this.removeBookmark,
+                            bookmarked: this.state.bookmarked
                         }, null)
                     )
                 )

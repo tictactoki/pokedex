@@ -16,36 +16,20 @@ const Pokemon = React.createClass({
         };
     },
 
-    isBookmarked: function() {
-        var element = false;
-        console.log(this.props.pokeData.name);
-        for(var i=0; i < this.props.bookmarks.length(); i++) {
-            if(this.props.bookmarks[i] == this.props.pokeData.name){
-                element = true;
-
-            }
-            console.log(this.props.bookmarks[i]);
-            console.log(this.props.pokeData.name);
+    CheckUnCheckButton: function(event){
+        event.preventDefault();
+        if(this.props.bookmarked) {
+            this.props.unCheckButton(event, this.props.pokeData.name);
         }
-        this.setState({bookmarked: element});
-    },
-
-    checkButton: function(event) {
-        event.preventDefault();
-        this.setState({bookmarked: true});
-        this.props.checkButton(event, this.props.pokeData.name);
-    },
-
-    unCheckButton: function(event){
-        event.preventDefault();
-        this.setState({bookmarked: false});
-        this.props.unCheckButton(event, this.props.pokeData.name);
+        else {
+            this.props.checkButton(event, this.props.pokeData.name);
+        }
     },
 
     createBookmarkedButton: function() {
         var button = null;
-        console.log(this.state.bookmarked);
-        if(this.state.bookmarked){
+        console.log(this.props.bookmarked);
+        if(this.props.bookmarked){
             button = elm("input", {type: "checkbox", value: this.props.pokeData.name, onClick: this.unCheckButton, checked: true}, null);
         }
         else {
@@ -54,14 +38,13 @@ const Pokemon = React.createClass({
         return button;
     },
 
-    componentDidMount: function() {
+    /*componentDidMount: function() {
         this.isBookmarked();
-    },
+    },*/
 
     render: function () {
         var that = this;
         if (this.props.pokeData != null) {
-            var button = this.createBookmarkedButton();
             return (
                 elm("div", null,
                     elm("div", null,
@@ -88,7 +71,9 @@ const Pokemon = React.createClass({
                                 ),
                                 elm("tr", null,
                                     elm("td", null, "Bookmark"),
-                                    elm("td", null, button)
+                                    elm("td", null,
+                                        button = elm("input", {type: "checkbox", value: this.props.pokeData.name, onClick: this.CheckUnCheckButton, checked: this.props.bookmarked}, null)
+                                    )
                                 )
                             )
                         ),
