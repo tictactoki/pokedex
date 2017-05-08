@@ -17,14 +17,17 @@ const Pokemon = React.createClass({
     },
 
     isBookmarked: function() {
-        var that = this;
-        for(var i=0; i < this.props.bookmarks.length; i++) {
+        var element = false;
+        console.log(this.props.pokeData.name);
+        for(var i=0; i < this.props.bookmarks.length(); i++) {
             if(this.props.bookmarks[i] == this.props.pokeData.name){
-                that.setState({bookmarked: true});
-                return;
+                element = true;
+
             }
+            console.log(this.props.bookmarks[i]);
+            console.log(this.props.pokeData.name);
         }
-        that.setState({bookmarked: false});
+        this.setState({bookmarked: element});
     },
 
     checkButton: function(event) {
@@ -41,6 +44,7 @@ const Pokemon = React.createClass({
 
     createBookmarkedButton: function() {
         var button = null;
+        console.log(this.state.bookmarked);
         if(this.state.bookmarked){
             button = elm("input", {type: "checkbox", value: this.props.pokeData.name, onClick: this.unCheckButton, checked: true}, null);
         }

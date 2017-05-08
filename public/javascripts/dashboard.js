@@ -101,7 +101,7 @@ const Dashboard = React.createClass({
 
     createBookmarkSelect: function() {
         var element = null;
-        if(this.state.bookmarks.length > 1) {
+        if(this.state.bookmarks.length > 0) {
             element = elm("select", {id: "bookmarks"},
                 this.state.bookmarks.map(function(name) {
                     return elm("option", {value: name}, name);
@@ -122,7 +122,6 @@ const Dashboard = React.createClass({
     },
 
     componentDidMount: function() {
-        console.log("test");
       this.getBookmarks();
     },
 

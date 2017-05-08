@@ -31,7 +31,7 @@ class BookMarkController @Inject()(override val reactiveMongoApi: ReactiveMongoA
   def getBookmarks = Action.async { implicit request =>
     request.session.get(Name).map { name =>
       find(mainCollection)(Name,name).map { bookmarks =>
-        Ok(Json.toJson(bookmarks.map(_.pokemon)))
+        Ok(Json.toJson(bookmarks.map(_.pokemon).toSet))
       }.recover { case e => Conflict(e.getMessage) }
     }.getOrElse(Future.successful(Unauthorized("Need to log in")))
   }
