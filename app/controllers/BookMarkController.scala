@@ -47,11 +47,10 @@ class BookMarkController @Inject()(override val reactiveMongoApi: ReactiveMongoA
 
   def removeBookmark(name: String) = Action.async { implicit request =>
     request.session.get(Name).map { n =>
-      val obj = Json.obj("pokemon" -> name, "name" -> n).as[Book]
-      mainCollection.flatMap(_.remove(obj)).map { res =>
+      mainCollection.flatMap(_.remove(Book(name,n))).map { res =>
         if(res.ok) Ok("")
         else Conflict("")
-      }.recover { case e => BadRequest("")}
+      }.recover { case e => BadRequest(e.getMessage)}
     }.getOrElse(Future.successful(Unauthorized("Need to login")))
   }
 

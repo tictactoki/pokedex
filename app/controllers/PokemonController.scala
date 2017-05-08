@@ -50,7 +50,7 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
   def autocomplete(prefix: String) = Action.async { implicit request =>
     request.session.get(CF.Id).map { id =>
       pokemonsName.map { list =>
-        Ok(Json.toJson(list.filter(_.toLowerCase.startsWith(prefix)).sorted.take(5)))
+        Ok(Json.toJson(list.filter(_.toLowerCase.startsWith(prefix.toLowerCase)).sorted.take(5)))
       }.recover {
         case e => NoContent
       }
@@ -121,7 +121,6 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
       set
     }
   }
-
 
   protected def fillPokemonData: Future[scala.collection.mutable.HashMap[String, String]] = {
     val map = scala.collection.mutable.HashMap[String, String]()

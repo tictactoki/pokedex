@@ -7,7 +7,7 @@ const Dashboard = React.createClass({
     getInitialState: function () {
         return {
             pokemons: [],
-            pokemonName: "",
+            pokemonName: null,
             pokeData: null,
             average_stats: [],
             types: [],
@@ -42,10 +42,29 @@ const Dashboard = React.createClass({
         $.get("http://localhost:9000/pokedex?name=" + name, function (data, status, xhr) {
             if (xhr.status == 200 && data != null) {
                 var bookmarked = that.checkPokemonBookmarked(name);
+                that.createTimeline(name);
                 that.setState({pokeData: data, average_stats: [], types: [], bookmarked: bookmarked});
                 that.updateAverageStats();
             }
         });
+    },
+
+    createTimeline: function (name) {
+        if (name != null) {
+            twttr.widgets.createTimeline(
+                {
+                    sourceType: 'profile',
+                    screenName: name
+                },
+                document.getElementById('timeline'),
+                {
+                    width: '400',
+                    height: '300',
+                    related: name
+                }).then(function (el) {
+                console.log('Embedded a timeline.')
+            });
+        }
     },
 
     updateAverageStats: function () {
@@ -173,10 +192,6 @@ const Dashboard = React.createClass({
                                 }, "Logout")
                             )
                         )
-                        //elm("div", null, select),
-                        /*elm("div", null,
-                         elm("button", {type: "submit", value: "Logout", onClick: this.logout, className: "btn btn-lg btn-primary btn-block"}, "Logout")
-                         )*/
                     ),
                     elm("div", {className: "pokedex"},
                         elm(Pokemon, {
@@ -188,7 +203,8 @@ const Dashboard = React.createClass({
                             unCheckButton: this.removeBookmark,
                             bookmarked: this.state.bookmarked
                         }, null)
-                    )
+                    ),
+                    elm("div", {id: "timeline"}, null)
                 )
             );
         }
