@@ -19,6 +19,10 @@ Technologies
 
 [Bower](https://bower.io/)
 
+[React](https://facebook.github.io/react/)
+
+[Bootstrap](http://getbootstrap.com/)
+
 TODO
 ====
 
