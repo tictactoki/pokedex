@@ -1,13 +1,11 @@
-package models.pokemons
+package models.persistences
 
-import play.api.libs.json._
 import models.helpers.Generator._
-import play.api.data.Form
-import play.api.data._
-import play.api.data.Forms._
 import models.helpers.{MongoDBFields => CF}
-import play.modules.reactivemongo.json._, ImplicitBSONHandlers._
-import reactivemongo.play.json._
+import models.pokemons.{Sprites, Stat, Type}
+import play.api.data.Form
+import play.api.data.Forms._
+import play.api.libs.json._
 
 /**
   * Created by wong on 02/05/17.

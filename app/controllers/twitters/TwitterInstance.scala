@@ -1,4 +1,4 @@
-package controllers.twitter
+package controllers.twitters
 
 import twitter4j.TwitterFactory
 import twitter4j.conf.ConfigurationBuilder

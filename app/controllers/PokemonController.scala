@@ -1,29 +1,25 @@
 package controllers
 
-import javax.inject._
+import javax.inject.{Singleton, _}
 
+import controllers.twitters.TwitterInstance
+import models.Tweet
+import models.helpers.MongoCollection._
+import models.helpers.{MongoDBFields => CF}
+import models.persistences.Pokemon
 import models.pokemons._
-import play.api.libs.json.{JsObject, Json, OWrites, Reads}
+import play.api.libs.json.{Json, OWrites, Reads}
 import play.api.libs.ws.WSClient
 import play.api.mvc._
-import play.modules.reactivemongo.{MongoController, ReactiveMongoApi, ReactiveMongoComponents}
+import play.modules.reactivemongo.ReactiveMongoApi
+import reactivemongo.play.json.collection.JSONCollection
+import twitter4j.Query
 
-import scala.collection.mutable._
+import scala.collection.JavaConverters._
+import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import javax.inject.Singleton
-
-import controllers.twitter.TwitterInstance
-import models.Tweet
-import reactivemongo.play.json.collection.JSONCollection
-import models.helpers.{MongoDBFields => CF}
-import models.helpers.MongoCollection._
-import twitter4j.{Query, TwitterFactory}
-import twitter4j.conf.ConfigurationBuilder
-
-import scala.collection.mutable
 import scala.concurrent.duration._
-import scala.collection.JavaConverters._
 import scala.util.Try
 
 /**

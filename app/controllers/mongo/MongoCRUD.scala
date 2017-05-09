@@ -2,7 +2,6 @@
 package controllers.mongo
 
 import controllers.CommonController
-import models.pokemons.Persistence
 import play.api.data.Form
 import play.api.libs.json.{JsObject, Json, OWrites, Reads}
 import play.api.mvc.{Action, Result}
@@ -10,6 +9,8 @@ import play.modules.reactivemongo.json._
 import reactivemongo.api.commands.WriteResult
 import reactivemongo.play.json.collection.JSONCollection
 import models.helpers.MongoDBFields._
+import models.persistences.Persistence
+
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
 

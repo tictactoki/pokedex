@@ -1,21 +1,18 @@
 package controllers
 
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 
-import models.pokemons.{SignUp, User}
+import models.helpers.MongoCollection._
+import models.helpers.MongoDBFields._
+import models.persistences.{SignUp, User}
+import org.mindrot.jbcrypt.BCrypt
 import play.api.libs.json.{OWrites, Reads}
+import play.api.mvc.Action
 import play.modules.reactivemongo.ReactiveMongoApi
-import javax.inject.Singleton
-
-import play.api.mvc.{Action, Session}
 import reactivemongo.play.json.collection.JSONCollection
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import models.helpers.MongoDBFields._
-import models.helpers.Generator._
-import org.mindrot.jbcrypt.BCrypt
-import models.helpers.MongoCollection._
 /**
   * Created by wong on 02/05/17.
   */
