@@ -14,6 +14,7 @@ import play.api.mvc._
 import play.modules.reactivemongo.ReactiveMongoApi
 import reactivemongo.play.json.collection.JSONCollection
 import twitter4j.Query
+import twitter4j.conf.ConfigurationBuilder
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -28,15 +29,14 @@ import scala.util.Try
   */
 @Singleton
 class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoApi: ReactiveMongoApi, override val configuration: play.api.Configuration)
-  extends CommonController(reactiveMongoApi, configuration) {
+  extends CommonController(reactiveMongoApi, configuration) with TwitterInstance {
 
 
   lazy val mainCollection: Future[JSONCollection] = getJSONCollection(Pokemons)
   override type P = Pokemon
   override implicit val mainReader: Reads[P] = Pokemon.pokemonReader
   override implicit val mainWriter: OWrites[P] = Pokemon.pokemonWriter
-
-
+  override lazy val twitter = getTwitterInstance(initConfig)
 
   protected lazy val pokemonsName = fillPokemonData.map(_.map(_._1).toList)
   protected val url = configuration.underlying.getString("pokedex.url")
@@ -90,13 +90,25 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
     }
   }
 
+  protected def initConfig: ConfigurationBuilder = {
+    val consumerKey = configuration.underlying.getString("twitter.consumerKey")
+    val consumerSecret = configuration.underlying.getString("twitter.consumerSecret")
+    val accessToken = configuration.underlying.getString("twitter.accessToken")
+    val accessTokenSecret = configuration.underlying.getString("twitter.accessTokenSecret")
+    new ConfigurationBuilder()
+      .setOAuthConsumerKey(consumerKey)
+      .setOAuthConsumerSecret(consumerSecret)
+      .setOAuthAccessToken(accessToken)
+      .setOAuthAccessTokenSecret(accessTokenSecret)
+  }
+
   protected def createPokemon(name: String): Future[Pokemon] = {
     getData(pokemonUrl + name).map { wsr => Pokemon(wsr.json) }
   }
 
   protected def getTweets(name: String) = {
-    Try(TwitterInstance.twitter.search(new Query("#" + name)).getTweets.asScala.map { status =>
-      Tweet(status.getUser.getScreenName,status.getText)
+    Try(twitter.search(new Query("#" + name)).getTweets.asScala.map { status =>
+      Tweet(status.getUser.getScreenName, status.getText)
     }.toList).getOrElse(Nil)
   }
 

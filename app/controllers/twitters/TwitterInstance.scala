@@ -1,17 +1,19 @@
 package controllers.twitters
 
-import twitter4j.TwitterFactory
+import twitter4j.{Twitter, TwitterFactory}
 import twitter4j.conf.ConfigurationBuilder
 
 /**
   * Created by wong on 09/05/17.
   */
-object TwitterInstance {
+trait TwitterInstance {
 
-  final lazy val twitter = new TwitterFactory(initConfig.build).getInstance()
+  protected val twitter: Twitter
 
-  protected def initConfig = {
-    new ConfigurationBuilder()
+  protected def getTwitterInstance(configurationBuilder: ConfigurationBuilder) = {
+    new TwitterFactory(configurationBuilder.build).getInstance()
   }
+
+
 
 }
