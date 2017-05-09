@@ -12,7 +12,8 @@ const Dashboard = React.createClass({
             average_stats: [],
             types: [],
             bookmarks: [],
-            bookmarked: false
+            bookmarked: false,
+            tweets: [],
         };
     },
 
@@ -42,29 +43,20 @@ const Dashboard = React.createClass({
         $.get("http://localhost:9000/pokedex?name=" + name, function (data, status, xhr) {
             if (xhr.status == 200 && data != null) {
                 var bookmarked = that.checkPokemonBookmarked(name);
-                that.createTimeline(name);
                 that.setState({pokeData: data, average_stats: [], types: [], bookmarked: bookmarked});
                 that.updateAverageStats();
+                that.getTweets(name);
             }
         });
     },
 
-    createTimeline: function (name) {
-        if (name != null) {
-            twttr.widgets.createTimeline(
-                {
-                    sourceType: 'profile',
-                    screenName: name
-                },
-                document.getElementById('timeline'),
-                {
-                    width: '400',
-                    height: '300',
-                    related: name
-                }).then(function (el) {
-                console.log('Embedded a timeline.')
-            });
-        }
+    getTweets: function(name) {
+        var that = this;
+        $.get("http://localhost:9000/getTweets?name=" + name, function (data, status, xhr) {
+           if(xhr.status == 200 && data != null) {
+               that.setState({tweets: data});
+           }
+        });
     },
 
     updateAverageStats: function () {
@@ -201,7 +193,8 @@ const Dashboard = React.createClass({
                             bookmarks: this.state.bookmarks,
                             checkButton: this.bookmarkPokemon,
                             unCheckButton: this.removeBookmark,
-                            bookmarked: this.state.bookmarked
+                            bookmarked: this.state.bookmarked,
+                            tweets: this.state.tweets
                         }, null)
                     ),
                     elm("div", {id: "timeline"}, null)
@@ -234,7 +227,6 @@ const Dashboard = React.createClass({
             );
         }
     }
-    //return elm("a",{className: "twitter-timeline",href: "https://twitter.com/hashtag/charizard", 'data-widget-id': "859164250522214400"},"tweet");
 
 });
 ReactDOM.render(

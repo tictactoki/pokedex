@@ -14,7 +14,9 @@ val reactiveMongoVer = "0.11.14"
 libraryDependencies ++= Seq(
   ws,
   "org.reactivemongo" %% "play2-reactivemongo" % reactiveMongoVer,
-  "org.mindrot" % "jbcrypt" % "0.3m"
+  "org.mindrot" % "jbcrypt" % "0.3m",
+  "org.twitter4j" % "twitter4j-core" % "4.0.6",
+  "org.twitter4j" % "twitter4j-stream" % "4.0.6"
 )
 
 // Adds additional packages into Twirl

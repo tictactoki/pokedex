@@ -7,6 +7,7 @@
 GET     /pokedex                    controllers.PokemonController.getPokemonData(name: String)
 GET     /autocomplete               controllers.PokemonController.autocomplete(prefix: String)
 GET     /pokemonType                controllers.PokemonController.getPokemonFromType(name: String, url: String)
+GET     /getTweets                  controllers.PokemonController.getPokemonTweet(name: String)
 
 GET     /                           controllers.UserController.index
 GET     /logout                     controllers.UserController.logout

@@ -13,12 +13,18 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import javax.inject.Singleton
 
+import controllers.twitter.TwitterInstance
+import models.Tweet
 import reactivemongo.play.json.collection.JSONCollection
 import models.helpers.{MongoDBFields => CF}
 import models.helpers.MongoCollection._
+import twitter4j.{Query, TwitterFactory}
+import twitter4j.conf.ConfigurationBuilder
 
 import scala.collection.mutable
 import scala.concurrent.duration._
+import scala.collection.JavaConverters._
+import scala.util.Try
 
 /**
   * This controller creates an `Action` to handle HTTP requests to the
@@ -33,6 +39,7 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
   override type P = Pokemon
   override implicit val mainReader: Reads[P] = Pokemon.pokemonReader
   override implicit val mainWriter: OWrites[P] = Pokemon.pokemonWriter
+
 
 
   protected lazy val pokemonsName = fillPokemonData.map(_.map(_._1).toList)
@@ -67,6 +74,12 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
     }.getOrElse(Future.successful(Unauthorized("You have to login")))
   }
 
+  def getPokemonTweet(name: String) = Action.async { implicit request =>
+    request.session.get(CF.Id).map { id =>
+      Future.successful(Ok(Json.toJson(getTweets(name))))
+    }.getOrElse(Future.successful(Unauthorized("You have ot login")))
+  }
+
   protected def getOrInsertPokemon(name: String): Future[Pokemon] = {
     findByName(mainCollection)(name).flatMap { po =>
       if (po.isDefined) {
@@ -83,6 +96,12 @@ class PokemonController @Inject()(val ws: WSClient, override val reactiveMongoAp
 
   protected def createPokemon(name: String): Future[Pokemon] = {
     getData(pokemonUrl + name).map { wsr => Pokemon(wsr.json) }
+  }
+
+  protected def getTweets(name: String) = {
+    Try(TwitterInstance.twitter.search(new Query("#" + name)).getTweets.asScala.map { status =>
+      Tweet(status.getUser.getScreenName,status.getText)
+    }.toList).getOrElse(Nil)
   }
 
   protected def getData(url: String) = ws.url(url).withRequestTimeout(300000.millis).get()

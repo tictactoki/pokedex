@@ -16,9 +16,9 @@ const Pokemon = React.createClass({
         };
     },
 
-    CheckUnCheckButton: function(event){
+    CheckUnCheckButton: function (event) {
         event.preventDefault();
-        if(this.props.bookmarked) {
+        if (this.props.bookmarked) {
             this.props.unCheckButton(event, this.props.pokeData.name);
         }
         else {
@@ -26,21 +26,27 @@ const Pokemon = React.createClass({
         }
     },
 
-    createBookmarkedButton: function() {
+    createBookmarkedButton: function () {
         var button = null;
         console.log(this.props.bookmarked);
-        if(this.props.bookmarked){
-            button = elm("input", {type: "checkbox", value: this.props.pokeData.name, onClick: this.unCheckButton, checked: true}, null);
+        if (this.props.bookmarked) {
+            button = elm("input", {
+                type: "checkbox",
+                value: this.props.pokeData.name,
+                onClick: this.unCheckButton,
+                checked: true
+            }, null);
         }
         else {
-            button = elm("input", {type: "checkbox", value: this.props.pokeData.name, onClick: this.checkButton, checked: false}, null);
+            button = elm("input", {
+                type: "checkbox",
+                value: this.props.pokeData.name,
+                onClick: this.checkButton,
+                checked: false
+            }, null);
         }
         return button;
     },
-
-    /*componentDidMount: function() {
-        this.isBookmarked();
-    },*/
 
     render: function () {
         var that = this;
@@ -73,7 +79,12 @@ const Pokemon = React.createClass({
                                 elm("tr", null,
                                     elm("td", null, "Bookmark"),
                                     elm("td", null,
-                                        button = elm("input", {type: "checkbox", value: this.props.pokeData.name, onClick: this.CheckUnCheckButton, checked: this.props.bookmarked}, null)
+                                        button = elm("input", {
+                                            type: "checkbox",
+                                            value: this.props.pokeData.name,
+                                            onClick: this.CheckUnCheckButton,
+                                            checked: this.props.bookmarked
+                                        }, null)
                                     )
                                 )
                             )
@@ -81,7 +92,7 @@ const Pokemon = React.createClass({
                         elm("table", {className: "table table-striped"},
                             elm("tbody", null,
                                 elm("tr", null,
-                                    elm("th", null, "Types")
+                                    elm("th", null, "Type")
                                 ),
                                 elm("tr", null,
                                     elm("td", {rowspan: (this.props.pokeData.types.length + "")},
@@ -116,7 +127,7 @@ const Pokemon = React.createClass({
                                 elm("th", null, "attack"),
                                 elm("th", null, "hp")
                             ),
-                            this.props.types.map(function(type) {
+                            this.props.types.map(function (type) {
                                 var stat = that.props.average_stats[type];
                                 return elm("tr", null,
                                     elm("td", null, stat.name),
@@ -126,6 +137,20 @@ const Pokemon = React.createClass({
                                     elm("td", null, stat.list["defense"]),
                                     elm("td", null, stat.list["attack"]),
                                     elm("td", null, stat.list["hp"])
+                                );
+                            })
+                        )
+                    ),
+                    elm("table", {className: "table table-striped"},
+                        elm("tbody", null,
+                            elm("tr", null,
+                                elm("th", null, "User"),
+                                elm("th", null, "Message")
+                            ),
+                            this.props.tweets.map(function (tweet) {
+                                return elm("tr", null,
+                                    elm("td", null, tweet.user),
+                                    elm("td", null, tweet.text)
                                 );
                             })
                         )
@@ -139,26 +164,5 @@ const Pokemon = React.createClass({
             );
         }
     }
-    //return elm("a",{className: "twitter-timeline",href: "https://twitter.com/hashtag/charizard", 'data-widget-id': "859164250522214400"},"tweet");
 
 });
-
-/*$(document).ready(function () {
- twttr.widgets.createTimeline(
- {
- sourceType: 'profile',
- screenName: 'charizard'
- },
- document.getElementById('content'),
- {
- width: '450',
- height: '400',
- related: 'charizard,twitterapi'
- }).then(function (el) {
- console.log('Embedded a timeline.')
- });
- });*/
-/*ReactDOM.render(
- elm(Pokemon, null,null),
- document.getElementById("container")
- );*/
